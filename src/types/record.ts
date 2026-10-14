@@ -1,0 +1,1 @@
+// TODO: 기기·연습 모드·개별 연습 종류, 행동 이벤트(PracticeEvent), IndexedDB에 저장할 연습 기록(PracticeRecord) 정의
