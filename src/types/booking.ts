@@ -1,0 +1,1 @@
+// TODO: 실전 연습 단계(BookingStep), 진행 상태(BookingStatus), 세션 상태(BookingSession: 현재 단계·관람일·회차·선택 좌석 등) 정의

@@ -1,0 +1,1 @@
+// TODO:구역(Zone), 좌석 정보(Seat: 구역·열·번호·SVG 좌표 등), 좌석 상태(SeatStatus: 매진, 선택가능, 선택됨 등, SeatStatusMap: 좌석 전체 상태) 정의
