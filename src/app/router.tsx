@@ -20,6 +20,7 @@ const router = createBrowserRouter([
       { path: '/practice/queue', element: <QueueScreen /> },
       { path: '/result/:recordId', element: <ResultScreen /> },
       { path: '/records', element: <RecordsScreen /> },
+      { path: '/drill', element: <DrillScreen /> },
       { path: '/drill/:type', element: <DrillScreen /> },
       { path: '*', element: <NotFoundScreen /> },
     ],
