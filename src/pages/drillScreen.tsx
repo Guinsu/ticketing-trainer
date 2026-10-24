@@ -8,6 +8,7 @@ import { useParams } from 'react-router-dom'
 import CancelTicketDrill from '@/features/drill/components/cancelTicketDrill'
 import TargetSeatDrill from '@/features/drill/components/targetSeatDrill'
 import CountdownDrill from '@/features/drill/components/countdownDrill'
+import CaptchaDrill from '@/features/drill/components/captchaDrill'
 
 const DrillScreen = () => {
   const { type } = useParams()
@@ -22,6 +23,10 @@ const DrillScreen = () => {
 
   if (type === 'countdown') {
     return <CountdownDrill />
+  }
+
+  if (type === 'captchaDrill') {
+    return <CaptchaDrill />
   }
 
   return (
@@ -62,7 +67,7 @@ const DrillScreen = () => {
               </div>
 
               <Link
-                to="/drill/captcha"
+                to="/drill/captchaDrill"
                 className="mt-auto block rounded-xl bg-purple-600 py-3 text-lg font-bold text-white text-center"
               >
                 연습 시작하기
