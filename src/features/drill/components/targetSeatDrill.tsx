@@ -1,6 +1,6 @@
 export default function TargetSeatDrill() {
   return (
-    <section className="bg-purple-300 min-h-screen px-5 py-5">
+    <section className="min-h-screen px-5 py-5">
       <div className="mx-auto max-w-7xl">
         <div>
           <h1 className="text-3xl font-bold sm:text-5xl">
@@ -15,38 +15,36 @@ export default function TargetSeatDrill() {
 
         <div className="flex flex-col gap-4 mt-3 lg:flex-row">
           {/*미션정보*/}
-          <div className="flex min-w-0 flex-1 flex-col rounded-2xl bg-white p-4 xl:p-6">
-            <div className="flex min-w-0 flex-1 flex-col rounded-2xl bg-white p-4 xl:p-6">
-              <h2 className="mb-5 text-2xl font-extrabold">미션 정보</h2>
+          <div className="flex min-w-0 flex-1 flex-col rounded-2xl bg-purple-100 p-4 xl:p-6">
+            <h2 className="mb-5 text-2xl font-extrabold">미션 정보</h2>
 
-              <div className="flex flex-col gap-4">
-                <div className="rounded-2xl border border-purple-100 bg-purple-50 p-5">
-                  <p className="font-semibold text-slate-600">선택할 좌석</p>
-                  <p className="mt-3 rounded-xl border border-purple-100 px-3 py-2 text-xl font-extrabold text-purple-600">
-                    C3구역 3열 12번
-                  </p>
-                </div>
+            <div className="flex flex-col gap-4">
+              <div className="rounded-2xl border border-purple-100 bg-purple-50 p-5">
+                <p className="font-semibold text-slate-600">선택할 좌석</p>
+                <p className="mt-3 rounded-xl border border-purple-100 px-3 py-2 text-xl font-extrabold text-purple-600">
+                  C3구역 3열 12번
+                </p>
+              </div>
 
-                <div className="rounded-2xl border border-purple-100 bg-purple-50 p-5">
-                  <p className="font-semibold text-slate-600">선택 소요 시간</p>
-                  <p className="mt-3 text-3xl font-extrabold text-purple-600">00:25</p>
-                </div>
+              <div className="rounded-2xl border border-purple-100 bg-purple-50 p-5">
+                <p className="font-semibold text-slate-600">선택 소요 시간</p>
+                <p className="mt-3 text-3xl font-extrabold text-purple-600">00:25</p>
+              </div>
 
-                <div className="rounded-2xl border border-purple-100 bg-purple-50 p-5">
-                  <p className="font-semibold text-slate-600">정답 여부</p>
-                  <p className="mt-3 text-3xl font-extrabold text-slate-950">-</p>
-                </div>
+              <div className="rounded-2xl border border-purple-100 bg-purple-50 p-5">
+                <p className="font-semibold text-slate-600">정답 여부</p>
+                <p className="mt-3 text-3xl font-extrabold text-slate-950">-</p>
+              </div>
 
-                <div className="rounded-2xl border border-purple-100 bg-purple-50 p-5">
-                  <p className="font-semibold text-slate-600">클릭 횟수</p>
-                  <p className="mt-3 text-3xl font-extrabold text-slate-950">0회</p>
-                </div>
+              <div className="rounded-2xl border border-purple-100 bg-purple-50 p-5">
+                <p className="font-semibold text-slate-600">클릭 횟수</p>
+                <p className="mt-3 text-3xl font-extrabold text-slate-950">0회</p>
               </div>
             </div>
           </div>
 
           {/* 좌석도 */}
-          <div className="flex min-w-0 flex-1 flex-col rounded-2xl bg-white p-4 xl:p-6">
+          <div className="flex min-w-0 flex-1 flex-col rounded-2xl bg-purple-100 p-4 xl:p-6">
             <div className="flex items-start gap-2.5 text-xl xl:text-2xl">
               <h2 className="font-extrabold">좌석도</h2>
             </div>
@@ -57,7 +55,7 @@ export default function TargetSeatDrill() {
           </div>
 
           {/*선택한 좌석*/}
-          <div className="flex min-w-0 flex-1 flex-col rounded-2xl bg-white p-4 xl:p-6">
+          <div className="flex min-w-0 flex-1 flex-col rounded-2xl bg-purple-100 p-4 xl:p-6">
             <div className="flex flex-1 flex-col gap-5">
               <h2 className="text-2xl font-extrabold">선택한 좌석</h2>
 

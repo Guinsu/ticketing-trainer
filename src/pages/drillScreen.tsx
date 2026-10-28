@@ -30,8 +30,8 @@ const DrillScreen = () => {
   }
 
   return (
-    <section className="bg-purple-300 min-h-screen px-5 py-5">
-      <div className="mx-auto max-w-7xl">
+    <section className="min-h-screen px-5 py-5">
+      <div className="mx-auto max-w-7xl ">
         <div>
           <h1 className="text-3xl font-bold sm:text-5xl">
             연습
@@ -43,7 +43,7 @@ const DrillScreen = () => {
         </div>
 
         <div className="flex flex-col gap-4 mt-3 lg:flex-row">
-          <div className="flex min-w-0 flex-1 flex-col rounded-2xl bg-white p-4 xl:p-6">
+          <div className="flex min-w-0 flex-1 flex-col rounded-2xl bg-purple-100 p-4 xl:p-6">
             <div className="flex items-start gap-2.5 text-xl xl:text-2xl">
               <p className="shrink-0 px-3.5 bg-purple-800 rounded-2xl text-white">01</p>
               <h2 className="font-extrabold">보안문자 입력 연습</h2>
@@ -75,7 +75,7 @@ const DrillScreen = () => {
             </div>
           </div>
 
-          <div className="flex min-w-0 flex-1 flex-col rounded-2xl bg-white p-4 xl:p-6">
+          <div className="flex min-w-0 flex-1 flex-col rounded-2xl bg-purple-100 p-4 xl:p-6">
             <div className="flex items-start gap-2.5 text-xl xl:text-2xl">
               <p className="shrink-0 px-3.5 bg-purple-800 rounded-2xl text-white">02</p>
               <h2 className="font-extrabold">좌석 선택 연습</h2>
@@ -114,7 +114,7 @@ const DrillScreen = () => {
             </div>
           </div>
 
-          <div className="flex min-w-0 flex-1 flex-col rounded-2xl bg-white p-4 xl:p-6">
+          <div className="flex min-w-0 flex-1 flex-col rounded-2xl bg-purple-100 p-4 xl:p-6">
             <div className="flex items-start gap-2.5 text-xl xl:text-2xl">
               <p className="shrink-0 px-3.5 bg-purple-800 rounded-2xl text-white">03</p>
               <h2 className="font-extrabold">카운트다운 버튼 클릭 연습</h2>
