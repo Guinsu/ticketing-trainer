@@ -1,1 +1,8 @@
 // TODO:  시뮬레이션 규칙(SimulationConfig: 대기열·좌석 소진·취소표·개별 연습 반복 횟수·카운트다운 추천 기준 등) 정의
+
+export interface QueueResult {
+  reactionMs: number
+  peopleAhead: number
+  totalWaiting: number
+  seed: number
+}
