@@ -10,7 +10,8 @@ const OPEN_DELAY_MS = 10_000
 // 회차 새로 렌더링되어 카운트다운 다시 시작
 function DrillCountdown({ onComplete }: { onComplete: () => void }) {
   // 카운트다운 남은 시간
-  const remaining = useCountdown(OPEN_DELAY_MS)
+  // [확인 필요] useCountdown 반환값이 number → { remaining, openAt }으로 바뀌어 구조 분해로 수정 (선웅, 대기열 반응 시간 측정용 openAt 추가)
+  const { remaining } = useCountdown(OPEN_DELAY_MS)
 
   const totalSeconds = Math.ceil(remaining / 1000)
   const minutes = String(Math.floor(totalSeconds / 60)).padStart(2, '0')
