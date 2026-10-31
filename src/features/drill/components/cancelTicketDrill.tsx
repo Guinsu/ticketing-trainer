@@ -229,22 +229,22 @@ export default function CancelTicketDrill() {
                   <h3 className="text-xl font-bold text-purple-700">예매 성공!</h3>
                   <dl className="mt-5 space-y-4 text-sm">
                     <div className="flex justify-between gap-4">
-                      <dt className="text-slate-500">선택 좌석</dt>
-                      <dd className="font-semibold">
+                      <div className="text-slate-500">선택 좌석</div>
+                      <div className="font-semibold">
                         {row + 1}열 {column + 1}번
-                      </dd>
+                      </div>
                     </div>
                     <div className="flex justify-between gap-4">
-                      <dt className="text-slate-500">예매 완료 시간</dt>
-                      <dd className="font-semibold">{(time / 1000).toFixed(3)}초</dd>
+                      <div className="text-slate-500">예매 완료 시간</div>
+                      <div className="font-semibold">{(time / 1000).toFixed(3)}초</div>
                     </div>
                     <div className="flex justify-between gap-4">
-                      <dt className="text-slate-500">실패 횟수</dt>
-                      <dd className="font-semibold">{failCount}회</dd>
+                      <div className="text-slate-500">실패 횟수</div>
+                      <div className="font-semibold">{failCount}회</div>
                     </div>
                     <div className="flex justify-between gap-4">
-                      <dt className="text-slate-500">좌석 클릭</dt>
-                      <dd className="font-semibold">{clickCount}회</dd>
+                      <div className="text-slate-500">좌석 클릭</div>
+                      <div className="font-semibold">{clickCount}회</div>
                     </div>
                   </dl>
                 </div>
