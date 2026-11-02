@@ -1,7 +1,8 @@
 import type { SeatGrade, SeatGradeInfo, Venue, Zone, ZoneBlock, ZoneLevel } from '@/types/seat'
 
-// KSPO DOME을 연습용으로 줄인 배치, 구역 번호·블록은 실제 구조를 따르고 좌석 수만 줄였다
-// A블록 쪽 무대(12시)를 바라볼 때 B블록이 오른쪽, C블록이 정면, D블록이 왼쪽
+// - KSPO DOME 배치: 플로어 FA~FF, 2층 1~22구역, 3층 23~43구역
+// - 무대: A블록 쪽 12시, B블록 오른쪽, C블록 정면, D블록 왼쪽
+// - 좌표: 중심 (0, 0), 각도는 12시 0도부터 시계 방향
 
 const GRADES: SeatGradeInfo[] = [
   { id: 'VIP', label: 'VIP석', price: 154000, bgClass: 'bg-primary', fillClass: 'fill-primary' },
@@ -10,15 +11,15 @@ const GRADES: SeatGradeInfo[] = [
   { id: 'A', label: 'A석', price: 88000, bgClass: 'bg-amber-500', fillClass: 'fill-amber-500' },
 ]
 
-// 2층 1번 구역 시작 각도, A블록(16~22) 가운데인 19구역이 12시(0도)에 오도록 돌린 값
+// 2층 1구역 시작 각도, 19구역 중심이 0도에 위치
 const START_ANGLE = 360 - 18.5 * (360 / 22)
-const NOT_ON_SALE_DEG = 45 // 무대에서 이 각도 안쪽은 무대 뒤라 판매하지 않는다
-const OBSTRUCTED_DEG = 65 // 이 각도 안쪽은 시야제한석
+const NOT_ON_SALE_DEG = 45 // 무대 기준 45도 미만 구역: 미판매
+const OBSTRUCTED_DEG = 65 // 45~65도 구역: 시야제한, 한 단계 낮은 등급
 
 const getBlock = (zoneNumber: number): ZoneBlock =>
   zoneNumber <= 4 ? 'B' : zoneNumber <= 11 ? 'C' : zoneNumber <= 15 ? 'D' : 'A'
 
-// 무대(0도)에서 떨어진 각도, 0~180
+// 무대(0도)와의 각도 차, 0~180
 const getDistanceFromStage = (angle: number) => {
   const normalized = ((angle % 360) + 360) % 360
   return Math.min(normalized, 360 - normalized)
@@ -30,8 +31,8 @@ const FLOOR_ZONES: Zone[] = ['A', 'B', 'C', 'D', 'E', 'F'].map((name, i) => ({
   level: 'floor',
   block: null,
   grade: 'VIP',
-  rows: 10,
-  seatsPerRow: 20,
+  rows: 20,
+  seatsPerRow: 25,
   shape: {
     type: 'rect',
     x: -117 + (i % 3) * 79,
@@ -55,7 +56,7 @@ type RingOptions = {
   obstructedGrade: SeatGrade
 }
 
-// 2·3층 구역을 12시 기준 시계 방향으로 같은 각도씩 나눠 만든다
+// 2·3층 구역 생성, START_ANGLE부터 시계 방향으로 360/count도씩 분할
 const createRingZones = ({
   level,
   firstNumber,
@@ -101,8 +102,8 @@ export const KSPO_DOME: Venue = {
       count: 22,
       innerRadius: 230,
       outerRadius: 320,
-      rows: 8,
-      seatsPerRow: 16,
+      rows: 14,
+      seatsPerRow: 21,
       grade: 'R',
       obstructedGrade: 'S',
     }),
@@ -112,8 +113,8 @@ export const KSPO_DOME: Venue = {
       count: 21,
       innerRadius: 330,
       outerRadius: 420,
-      rows: 8,
-      seatsPerRow: 14,
+      rows: 16,
+      seatsPerRow: 20,
       grade: 'S',
       obstructedGrade: 'A',
     }),

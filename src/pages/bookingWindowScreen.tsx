@@ -26,13 +26,13 @@ const BookingWindowScreen = () => {
   const [step, setStep] = useState<WindowStep>('schedule')
   const [enteredAt] = useState(() => performance.now())
   const [outcome, setOutcome] = useState<BookingOutcome | null>(null)
-  // TODO: 좌석 소진 함수 연결 시 queueResult(peopleAhead, seed)를 SeatStep에 전달
+  const [scheduleId, setScheduleId] = useState<string | null>(null)
+  // 현재 공연의 대기열 결과, 없으면 null
   const queueResult = useQueueStore((state) => (state.concertId === concert?.id ? state.result : null))
 
   if (!concert) return <Navigate to="/" replace />
   if (!queueResult) return <Navigate to={`/practice?concertId=${concert.id}`} replace />
-  // TODO: 선택 회차 상태 연결
-  const schedule = concert.schedules[0]
+  const schedule = concert.schedules.find((s) => s.id === scheduleId) ?? concert.schedules[0]
   const scheduleText = `${formatDate(schedule.date)} ${formatTime(schedule.time)}`
 
   const handleSeatComplete = (seat: Seat) => {
@@ -45,8 +45,15 @@ const BookingWindowScreen = () => {
       {step === 'seat' && (
         <BookingHeader concertTitle={concert.title} scheduleText={scheduleText} remainingText="10:00" />
       )}
-      {step === 'schedule' && <ScheduleStep schedules={concert.schedules} onNext={() => setStep('seat')} />}
-      {step === 'seat' && <SeatStep onNext={handleSeatComplete} />}
+      {step === 'schedule' && (
+        <ScheduleStep
+          schedules={concert.schedules}
+          selectedId={schedule.id}
+          onSelect={setScheduleId}
+          onNext={() => setStep('seat')}
+        />
+      )}
+      {step === 'seat' && <SeatStep queueResult={queueResult} onNext={handleSeatComplete} />}
       {step === 'result' && outcome && (
         <ResultStep
           concertId={concert.id}

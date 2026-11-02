@@ -6,6 +6,8 @@ const pad = (n: number) => String(n).padStart(2, '0')
 
 interface ScheduleStepProps {
   schedules: Schedule[]
+  selectedId: string
+  onSelect: (id: string) => void
   onNext: () => void
 }
 
@@ -13,9 +15,8 @@ interface ScheduleStepProps {
  * ScheduleStep
  * @description 예매창 1단계, 관람일 달력과 회차 시간 선택
  */
-const ScheduleStep = ({ schedules, onNext }: ScheduleStepProps) => {
-  // TODO: 선택 상태 연결
-  const selected = schedules[0]
+const ScheduleStep = ({ schedules, selectedId, onSelect, onNext }: ScheduleStepProps) => {
+  const selected = schedules.find((schedule) => schedule.id === selectedId) ?? schedules[0]
   const [year, month] = selected.date.split('-').map(Number)
   const firstDay = new Date(year, month - 1, 1).getDay()
   const lastDate = new Date(year, month, 0).getDate()
@@ -40,7 +41,7 @@ const ScheduleStep = ({ schedules, onNext }: ScheduleStepProps) => {
           {Array.from({ length: lastDate }, (_, i) => {
             const day = i + 1
             const date = `${year}-${pad(month)}-${pad(day)}`
-            const isAvailable = schedules.some((schedule) => schedule.date === date)
+            const firstShowing = schedules.find((schedule) => schedule.date === date)
             const isSelected = date === selected.date
             const isSunday = (firstDay + i) % 7 === 0
 
@@ -48,11 +49,12 @@ const ScheduleStep = ({ schedules, onNext }: ScheduleStepProps) => {
               <button
                 key={date}
                 type="button"
-                disabled={!isAvailable}
+                disabled={!firstShowing}
+                onClick={() => firstShowing && onSelect(firstShowing.id)}
                 className={`mx-auto size-11 rounded-full ${
                   isSelected
                     ? 'bg-primary font-bold text-white'
-                    : isAvailable
+                    : firstShowing
                       ? `cursor-pointer font-bold hover:ring-1 hover:ring-primary ${isSunday ? 'text-red-500' : ''}`
                       : isSunday
                         ? 'text-red-200'
@@ -71,7 +73,13 @@ const ScheduleStep = ({ schedules, onNext }: ScheduleStepProps) => {
           <button
             key={schedule.id}
             type="button"
-            className="cursor-pointer border-2 border-primary bg-white px-6 py-5 text-left text-lg font-bold text-primary"
+            aria-pressed={schedule.id === selected.id}
+            onClick={() => onSelect(schedule.id)}
+            className={`cursor-pointer px-6 py-5 text-left text-lg font-bold ${
+              schedule.id === selected.id
+                ? 'border-2 border-primary bg-white text-primary'
+                : 'border border-gray-300 bg-white text-gray-800 hover:border-primary'
+            }`}
           >
             {formatTime(schedule.time)}
           </button>

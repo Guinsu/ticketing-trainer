@@ -1,44 +1,45 @@
 import type { QueueResult } from '@/types/simulation'
 
 // 대기열 시뮬레이션
-// 1. 예매하기 클릭 시 createQueue(reactionMs)로 시작 순번·대기 인원·시드를 정한다
-//    reactionMs = 클릭 시각 - 오픈 시각(useCountdown의 openAt), queueScreen에서 performance.now()로 측정
-// 2. 대기 화면에서 QUEUE_TICK_MS마다 tickQueue로 순번을 줄이고, 0이 되면 예매창으로 이동
-// 3. QueueResult는 예매창으로 넘어가 결과 분석·좌석 소진 계산에 쓰인다
+// 1. createQueue(reactionMs): 시작 순번·대기 인원·시드 결정
+//    - reactionMs = 클릭 시각 - useCountdown의 openAt
+// 2. tickQueue: QUEUE_TICK_MS마다 순번 감소, 0이면 종료
+// 3. QueueResult: 예매창 결과 분석·매진 좌석 계산 입력
 
-export const QUEUE_TICK_MS = 500 // 순번이 줄어드는 주기
+export const QUEUE_TICK_MS = 500 // 순번 감소 주기
 
 // 시작 순번
-const BASE_PEOPLE_AHEAD = 50 // 바로 눌러도 앞에 있는 최소 인원
-const PEOPLE_PER_MS = 1 // 버튼 활성화 후 1ms 늦을 때마다 앞에 끼어드는 인원 (1초 = 1,000명)
-const PEOPLE_JITTER = 0.1 // 시작 순번 ±10% 랜덤
+const BASE_PEOPLE_AHEAD = 50 // reactionMs 0일 때 앞 인원
+const PEOPLE_PER_MS = 50 // 1ms당 추가 앞 인원 (0.1초 = 5,000명)
+// 시작 순번 ±30% 랜덤 배율
+const PEOPLE_JITTER = 0.3
 
 // 대기 시간
-const BASE_WAIT_MS = 3000 // 바로 눌러도 기다리는 최소 시간
-const WAIT_PER_REACTION_MS = 2 // 1ms 늦을 때마다 늘어나는 대기 시간 (1초 늦으면 2초 더)
-export const MAX_WAIT_MS = 20_000 // 대기 시간 상한, 연습 흐름이 늘어지지 않게
+const BASE_WAIT_MS = 3000 // reactionMs 0일 때 대기 시간
+const WAIT_PER_REACTION_MS = 2 // 1ms당 추가 대기 시간 (1초 → +2초)
+export const MAX_WAIT_MS = 20_000 // 대기 시간 상한
 
 // 순번 감소
-const DRAIN_JITTER = 0.3 // 한 틱에 줄어드는 양 ±30% 랜덤, 실제 대기열처럼 들쭉날쭉하게
-const ALMOST_RATIO = 0.1 // 남은 순번이 시작 순번의 10% 이하면 '곧 차례' 표시
+const DRAIN_JITTER = 0.3 // 틱당 감소량 ±30% 랜덤 배율
+const ALMOST_RATIO = 0.1 // 남은 순번 ≤ 시작 순번의 10%: isAlmost true
 
 export type QueueState = {
-  tick: number // 지난 틱 수, 마지막 틱에 순번을 0으로 맞추는 데 사용
+  tick: number // 지난 틱 수, 마지막 틱 판정용
   position: number // 나의 대기순서
   total: number // 현재 대기인원 (내 뒤 인원 포함)
   progress: number // 0~100
   isAlmost: boolean
 }
 
-// 1을 기준으로 ±ratio 사이에서 흔든 배율
+// 1 ± ratio 범위 랜덤 배율
 const jitter = (rand: () => number, ratio: number) => 1 + (rand() * 2 - 1) * ratio
 
-// 늦게 누를수록 대기 시간이 길어지고, MAX_WAIT_MS를 넘지 않는다
+// 대기 시간 = BASE_WAIT_MS + reactionMs × WAIT_PER_REACTION_MS, 상한 MAX_WAIT_MS
 export const getWaitMs = (reactionMs: number) =>
   Math.min(BASE_WAIT_MS + Math.max(0, reactionMs) * WAIT_PER_REACTION_MS, MAX_WAIT_MS)
 
-// 클릭 반응 시간으로 시작 순번·대기 인원·시드를 정한다
-// rand는 테스트에서 고정값을 넣기 위한 인자, 기본은 Math.random
+// - 앞 인원 = (BASE_PEOPLE_AHEAD + reactionMs × PEOPLE_PER_MS) × 랜덤 배율
+// - rand: 난수 함수, 기본 Math.random
 export const createQueue = (reactionMs: number, rand: () => number = Math.random): QueueResult => {
   const safeReactionMs = Math.max(0, reactionMs)
   const peopleAhead = Math.round(
@@ -48,12 +49,12 @@ export const createQueue = (reactionMs: number, rand: () => number = Math.random
   return {
     reactionMs: safeReactionMs,
     peopleAhead,
-    totalWaiting: Math.round(peopleAhead * (1.5 + rand() * 0.5)), // 내 뒤에 선 인원까지 1.5~2배
-    seed: Math.floor(rand() * 2 ** 32), // 좌석 소진 계산용 고정 시드
+    totalWaiting: Math.round(peopleAhead * (1.5 + rand() * 0.5)), // 앞 인원의 1.5~2배
+    seed: Math.floor(rand() * 2 ** 32), // 매진 좌석 계산용 시드
   }
 }
 
-// 대기 화면 첫 상태, 아직 순번이 줄지 않은 상태
+// 첫 상태, 순번 = 시작 순번
 export const createQueueState = (result: QueueResult): QueueState => ({
   tick: 0,
   position: result.peopleAhead,
@@ -62,8 +63,8 @@ export const createQueueState = (result: QueueResult): QueueState => ({
   isAlmost: false,
 })
 
-// 한 틱마다 순번을 랜덤하게 줄인다
-// 평균 감소량 = 시작 순번 ÷ 전체 틱 수, 마지막 틱에는 랜덤과 상관없이 0으로 끝나 대기 시간이 상한을 넘지 않는다
+// - 틱당 감소량 = 시작 순번 ÷ 전체 틱 수 × 랜덤 배율, 최소 1
+// - 마지막 틱: 순번 0
 export const tickQueue = (
   state: QueueState,
   result: QueueResult,
@@ -82,7 +83,7 @@ export const tickQueue = (
   return {
     tick,
     position,
-    total: Math.max(position, state.total - (state.position - position)), // 앞에서 빠진 만큼 같이 줄어듦
+    total: Math.max(position, state.total - (state.position - position)), // 순번 감소량만큼 감소, 최소 position
     progress: Math.round((1 - position / result.peopleAhead) * 100),
     isAlmost: position <= result.peopleAhead * ALMOST_RATIO,
   }
