@@ -21,7 +21,8 @@ const SeatStep = ({ onNext }: SeatStepProps) => {
   const selectedGrade = KSPO_DOME.grades.find((grade) => grade.id === selectedSeat?.grade)
 
   // 같은 좌석을 다시 누르면 선택 취소, 다른 좌석을 누르면 바꾼다
-  const handleSeatClick = (seat: Seat) => setSelectedSeat((prev) => (prev?.id === seat.id ? null : seat))
+  const handleSeatClick = (seat: Seat) =>
+    setSelectedSeat((prev) => (prev?.id === seat.id ? null : seat))
 
   return (
     <div className="grid min-h-[600px] lg:grid-cols-[1fr_360px]">
@@ -38,19 +39,28 @@ const SeatStep = ({ onNext }: SeatStepProps) => {
             </button>
             <div className="w-full max-w-2xl">
               <p className="mb-3 text-lg font-extrabold">{zone.label}</p>
-              <SeatMap zone={zone} grade={zoneGrade} statusMap={statusMap} onSeatClick={handleSeatClick} />
+              <SeatMap
+                zone={zone}
+                grade={zoneGrade}
+                statusMap={statusMap}
+                onSeatClick={handleSeatClick}
+              />
             </div>
           </>
         ) : (
           <>
-            <p className="absolute top-6 left-6 text-sm font-bold text-gray-600">구역을 선택해주세요</p>
+            <p className="absolute top-6 left-6 text-sm font-bold text-gray-600">
+              구역을 선택해주세요
+            </p>
             <ZoneMinimap venue={KSPO_DOME} soldOutZoneIds={[]} onZoneClick={setZone} />
           </>
         )}
       </section>
 
       <aside className="flex flex-col border-l border-gray-200 bg-white p-6">
-        <h2 className="border-b-2 border-gray-900 pb-3 text-lg font-extrabold tracking-tight">좌석 등급</h2>
+        <h2 className="border-b-2 border-gray-900 pb-3 text-lg font-extrabold tracking-tight">
+          좌석 등급
+        </h2>
         <ul className="mt-3 space-y-2.5 text-sm">
           {KSPO_DOME.grades.map((grade) => (
             <li key={grade.id} className="flex items-center gap-2">
@@ -61,7 +71,9 @@ const SeatStep = ({ onNext }: SeatStepProps) => {
           ))}
         </ul>
 
-        <h2 className="mt-8 border-b-2 border-gray-900 pb-3 text-lg font-extrabold tracking-tight">선택 좌석</h2>
+        <h2 className="mt-8 border-b-2 border-gray-900 pb-3 text-lg font-extrabold tracking-tight">
+          선택 좌석
+        </h2>
         {selectedSeat && selectedGrade ? (
           <div className="flex-1 py-6">
             <p className="text-lg font-bold">
@@ -72,7 +84,9 @@ const SeatStep = ({ onNext }: SeatStepProps) => {
             </p>
           </div>
         ) : (
-          <p className="flex flex-1 items-center justify-center py-16 text-gray-400">선택한 좌석이 없습니다.</p>
+          <p className="flex flex-1 items-center justify-center py-16 text-gray-400">
+            선택한 좌석이 없습니다.
+          </p>
         )}
         <button
           type="button"
