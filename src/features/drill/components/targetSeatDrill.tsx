@@ -4,6 +4,8 @@ import { KSPO_DOME } from '@/data/kspoDome'
 import SeatMap from '@/features/seat/components/seatMap'
 import type { Seat, SeatStatusMap, Zone } from '@/types/seat'
 import useStopwatch from '@/common/hooks/useStopwatch'
+import { getStoredNickname } from '@/common/utils/nicknameStrorage'
+import savePracticeRecord from '@/lib/savePracticeRecord'
 
 type GameState = 'stop' | 'start' | 'over'
 
@@ -198,6 +200,12 @@ export default function TargetSeatDrill() {
                       clearInterval(intervalRef.current)
                       intervalRef.current = undefined
                       setGameState('over')
+                      savePracticeRecord({
+                        nickname: getStoredNickname(),
+                        practice_type: 'target-seat',
+                        status: 'completed',
+                        durationMS: time,
+                      })
                     } else if (gameState === 'over') {
                       setZone(null)
                       setSelectedSeat(null)

@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react'
 import useStopwatch from '@/common/hooks/useStopwatch'
+import { getStoredNickname } from '@/common/utils/nicknameStrorage'
+import savePracticeRecord from '@/lib/savePracticeRecord'
 
 // idle : 연습시작 |  open : 시작 | selected : 선택 | missed : 실패 | completed : 완료
 type GameState = 'idle' | 'open' | 'selected' | 'missed' | 'completed'
@@ -312,6 +314,15 @@ export default function CancelTicketDrill() {
                       intervalRef.current = undefined
                       recordLap()
                       setGameState('completed')
+
+                      savePracticeRecord({
+                        nickname: getStoredNickname(),
+                        practice_type: 'cancel-ticket',
+                        status: 'completed',
+                        durationMS: time,
+                        clickCount,
+                        errorCount: failCount,
+                      })
                     }}
                   >
                     선택 완료
