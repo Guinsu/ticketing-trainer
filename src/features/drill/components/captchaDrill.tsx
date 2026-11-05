@@ -1,8 +1,9 @@
 import { useState, useRef } from 'react'
-import Modal from '@/common/components/modal'
 import GenerateCaptcha from '@/features/captcha/util/generateCaptcha'
 import CaptchaBox from '@/features/captcha/components/captchaBox'
 import useStopwatch from '@/common/hooks/useStopwatch'
+import { getStoredNickname } from '@/common/utils/nicknameStrorage'
+import savePracticeRecord from '@/lib/savePracticeRecord'
 
 export default function CaptchaDrill() {
   //게임 상태 관리
@@ -39,6 +40,12 @@ export default function CaptchaDrill() {
       setResultMessage('정답이에요!')
       setIsCorrect(true)
       recordLap()
+      savePracticeRecord({
+        nickname: getStoredNickname(),
+        practice_type: 'captcha',
+        status: 'completed',
+        durationMS: time,
+      })
 
       if (laps.length + 1 >= 5) {
         clearInterval(intervalRef.current)

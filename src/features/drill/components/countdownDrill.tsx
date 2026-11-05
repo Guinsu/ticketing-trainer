@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react'
 import { useCountdown } from '@/common/hooks/useCountdown'
 import useStopwatch from '@/common/hooks/useStopwatch'
+import { getStoredNickname } from '@/common/utils/nicknameStrorage'
+import savePracticeRecord from '@/lib/savePracticeRecord'
 
 // idle : 연습시작 | countdown : 카운트다운 | ready : 대기
 type GameState = 'idle' | 'countdown' | 'ready'
@@ -96,6 +98,12 @@ export default function CountdownDrill() {
                         clearInterval(intervalRef.current)
                         intervalRef.current = undefined
                         setGameState('idle')
+                        savePracticeRecord({
+                          nickname: getStoredNickname(),
+                          practice_type: 'countdown',
+                          status: 'completed',
+                          durationMS: time,
+                        })
                       }
                     }}
                     // remaining={remaining}
