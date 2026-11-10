@@ -1,10 +1,16 @@
 import type { QueueResult } from '@/types/simulation'
 import { create } from 'zustand'
 
+export type RealPracticeTiming = {
+  startedAt: string
+  activatedAtMs: number
+}
+
 type QueueStore = {
   concertId: string | null
   result: QueueResult | null
-  setResult: (concertId: string, result: QueueResult) => void
+  timing: RealPracticeTiming | null
+  setResult: (concertId: string, result: QueueResult, timing: RealPracticeTiming) => void
   reset: () => void
 }
 
@@ -12,6 +18,7 @@ type QueueStore = {
 export const useQueueStore = create<QueueStore>((set) => ({
   concertId: null,
   result: null,
-  setResult: (concertId, result) => set({ concertId, result }),
-  reset: () => set({ concertId: null, result: null }),
+  timing: null,
+  setResult: (concertId, result, timing) => set({ concertId, result, timing }),
+  reset: () => set({ concertId: null, result: null, timing: null }),
 }))
