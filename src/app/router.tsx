@@ -1,13 +1,12 @@
 import HomeScreen from '@/pages/homeScreen'
+import type { ComponentType } from 'react'
 import { createBrowserRouter } from 'react-router-dom'
-import QueueScreen from '@/pages/queueScreen'
-import ConcertScreen from '@/pages/concertScreen'
-import BookingWindowScreen from '@/pages/bookingWindowScreen'
-import ResultScreen from '@/pages/resultScreen'
-import RecordsScreen from '@/pages/recordsScreen'
-import DrillScreen from '@/pages/drillScreen'
-import NotFoundScreen from '@/pages/notFoundScreen'
 import App from './App'
+
+// 화면 코드는 그 화면에 들어갈 때 받는다, 첫 화면(홈)만 처음 번들에 포함
+const page = (load: () => Promise<{ default: ComponentType }>) => async () => ({
+  Component: (await load()).default,
+})
 
 const router = createBrowserRouter([
   {
@@ -15,14 +14,14 @@ const router = createBrowserRouter([
     element: <App />,
     children: [
       { index: true, element: <HomeScreen /> },
-      { path: '/practice', element: <ConcertScreen /> },
-      { path: '/practice/window', element: <BookingWindowScreen /> },
-      { path: '/practice/queue', element: <QueueScreen /> },
-      { path: '/result/:recordId', element: <ResultScreen /> },
-      { path: '/records', element: <RecordsScreen /> },
-      { path: '/drill', element: <DrillScreen /> },
-      { path: '/drill/:type', element: <DrillScreen /> },
-      { path: '*', element: <NotFoundScreen /> },
+      { path: '/practice', lazy: page(() => import('@/pages/concertScreen')) },
+      { path: '/practice/window', lazy: page(() => import('@/pages/bookingWindowScreen')) },
+      { path: '/practice/queue', lazy: page(() => import('@/pages/queueScreen')) },
+      { path: '/result/:recordId', lazy: page(() => import('@/pages/resultScreen')) },
+      { path: '/records', lazy: page(() => import('@/pages/recordsScreen')) },
+      { path: '/drill', lazy: page(() => import('@/pages/drillScreen')) },
+      { path: '/drill/:type', lazy: page(() => import('@/pages/drillScreen')) },
+      { path: '*', lazy: page(() => import('@/pages/notFoundScreen')) },
     ],
   },
 ])
