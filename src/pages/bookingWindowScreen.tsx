@@ -3,23 +3,19 @@ import { getStoredNickname } from '@/common/utils/nicknameStrorage'
 import { CONCERTS } from '@/data/concerts'
 import type { CaptchaRecord } from '@/features/booking/components/captchaStep'
 import BookingHeader from '@/features/booking/components/bookingHeader'
-import ResultStep from '@/features/booking/components/resultStep'
+import LoadingMessage from '@/features/queue/components/loadingMessage'
+import ResultReport from '@/features/booking/components/resultReport'
 import ScheduleStep from '@/features/booking/components/scheduleStep'
 import SeatStep from '@/features/booking/components/seatStep'
 import TimeoutStep from '@/features/booking/components/timeoutStep'
+import type { RealPracticeResult } from '@/features/booking/utils/practiceResult'
 import { useQueueStore } from '@/features/queue/store'
 import saveRealPracticeRecord from '@/lib/saveRealPracticeRecord'
 import type { Seat } from '@/types/seat'
 import { useState } from 'react'
-import { Navigate, useSearchParams } from 'react-router-dom'
+import { Navigate, useNavigate, useSearchParams } from 'react-router-dom'
 
-type WindowStep = 'schedule' | 'seat' | 'result' | 'timeout'
-
-type BookingOutcome = {
-  seat: Seat
-  elapsedMs: number
-  takenCount: number
-}
+type WindowStep = 'schedule' | 'seat' | 'saving' | 'unsaved' | 'timeout'
 
 const SEAT_TIME_LIMIT_MS = 10 * 60_000
 
@@ -29,6 +25,7 @@ const SEAT_TIME_LIMIT_MS = 10 * 60_000
  */
 const BookingWindowScreen = () => {
   const [searchParams] = useSearchParams()
+  const navigate = useNavigate()
   const concert = CONCERTS.find((item) => item.id === searchParams.get('concertId'))
   const [step, setStep] = useState<WindowStep>('schedule')
   const [enteredAt] = useState(() => performance.now())
@@ -37,7 +34,7 @@ const BookingWindowScreen = () => {
   const [seatDeadline, setSeatDeadline] = useState<number | null>(null)
   // 보안문자는 한 번만, 일정변경 후 다시 묻지 않는다
   const [captcha, setCaptcha] = useState<CaptchaRecord | null>(null)
-  const [outcome, setOutcome] = useState<BookingOutcome | null>(null)
+  const [outcome, setOutcome] = useState<RealPracticeResult | null>(null)
   const [scheduleId, setScheduleId] = useState<string | null>(null)
   // 현재 공연의 대기열 결과, 없으면 null
   const queueResult = useQueueStore((state) =>
@@ -65,23 +62,36 @@ const BookingWindowScreen = () => {
 
   const handleChangeSchedule = () => setStep('schedule')
 
-  // 결과 화면 전환, real_practice_records 저장(완료 대기 없음)
+  // 저장되면 /result/:id로 이동, 닉네임이 없거나 저장에 실패하면 이 자리에서 결과를 보여준다
   // 좌석은 보안문자를 통과해야 고를 수 있어 captcha가 항상 있다
-  const handleSeatComplete = (seat: Seat, takenCount: number) => {
+  const handleSeatComplete = async (seat: Seat, takenCount: number) => {
     if (!captcha) return
     const now = performance.now()
-    setOutcome({ seat, elapsedMs: now - enteredAt, takenCount })
-    setStep('result')
-    saveRealPracticeRecord({
+    const result: RealPracticeResult = {
+      concertId: concert.id,
+      scheduleId: schedule.id,
+      seatId: seat.id,
+      peopleAhead: queueResult.peopleAhead,
+      takenCount,
+      durationMs: now - queueTiming.activatedAtMs,
+      captchaMisses: captcha.misses,
+      stages: {
+        reaction: queueResult.reactionMs,
+        schedule: seatStartedAt - enteredAt,
+        captcha: captcha.ms,
+        seat: now - seatStartedAt - captcha.ms,
+      },
+    }
+    setOutcome(result)
+    setStep('saving')
+
+    const recordId = await saveRealPracticeRecord({
       nickname: getStoredNickname(),
       startedAt: queueTiming.startedAt,
-      durationMs: now - queueTiming.activatedAtMs,
-      reactionMs: queueResult.reactionMs,
-      scheduleSelectionMs: seatStartedAt - enteredAt,
-      captchaMs: captcha.ms,
-      captchaMisses: captcha.misses,
-      seatSelectionMs: now - seatStartedAt - captcha.ms,
+      result,
     })
+    if (recordId) navigate(`/result/${recordId}`, { replace: true })
+    else setStep('unsaved')
   }
 
   return (
@@ -113,16 +123,16 @@ const BookingWindowScreen = () => {
         />
       )}
       {step === 'timeout' && <TimeoutStep concertId={concert.id} />}
-      {step === 'result' && outcome && captcha && (
-        <ResultStep
-          concertId={concert.id}
-          concertTitle={concert.title}
-          scheduleText={scheduleText}
-          queueResult={queueResult}
-          seat={outcome.seat}
-          elapsedMs={outcome.elapsedMs}
-          takenCount={outcome.takenCount}
-          captcha={captcha}
+      {step === 'saving' && <LoadingMessage title="결과를 분석하고 있어요" />}
+      {step === 'unsaved' && outcome && (
+        <ResultReport
+          result={outcome}
+          averages={null}
+          notice={
+            getStoredNickname()
+              ? '기록을 저장하지 못해 이번 결과는 기록에 남지 않아요.'
+              : '닉네임을 등록하면 기록이 저장되고 평균과 비교한 분석을 볼 수 있어요.'
+          }
         />
       )}
     </div>
