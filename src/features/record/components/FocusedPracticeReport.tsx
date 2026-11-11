@@ -116,6 +116,21 @@ export default function FocusedPracticeReport() {
         <p className="mt-1 text-sm text-purple-950/70">
           연습 유형별 속도와 기록 변화를 확인하세요.
         </p>
+        <p className="mt-2 text-xs text-purple-950/60">
+          이전 버전의 좌석·취소표 기록은 측정 기준이 달라 비교에 주의해주세요.
+        </p>
+        {/* 자세한 기준은 필요할 때 펼쳐보기. 기존 기록 주의사항은 접어도 계속 표시 */}
+        <details className="mt-3 rounded-xl border border-purple-200 bg-white/50 text-sm text-purple-950/80">
+          <summary className="cursor-pointer rounded-xl px-4 py-3 font-semibold focus-visible:outline-2 focus-visible:outline-purple-700">
+            기록은 어떻게 측정하나요?
+          </summary>
+          <div className="space-y-2 px-4 pb-4 leading-6">
+            <p>보안문자: 한 문제를 정확하게 입력하는 데 걸린 시간이에요.</p>
+            <p>좌석 선택: 목표 구역과 좌석을 찾아 선택을 완료하는 데 걸린 시간이에요.</p>
+            <p>카운트다운: 버튼이 활성화된 뒤 클릭할 때까지의 반응 시간이에요.</p>
+            <p>취소표: 실패한 시도 시간을 포함해요. 재시도 대기 시간은 제외해요.</p>
+          </div>
+        </details>
       </div>
       <div className="flex flex-col rounded-2xl border border-violet-100 bg-white/90 p-5 shadow-sm shadow-violet-100/40 sm:p-6">
         <h3 className="text-xl font-extrabold text-slate-950">유형별 평균 소요 시간</h3>

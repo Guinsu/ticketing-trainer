@@ -1,12 +1,13 @@
 import { useState, useEffect } from 'react'
-import useStopwatch from '@/common/hooks/useStopwatch'
+import useDrillStopwatch from '@/features/drill/hooks/useDrillStopwatch'
 import { getStoredNickname } from '@/common/utils/nicknameStrorage'
-import savePracticeRecord from '@/lib/savePracticeRecord'
+import useDrillRecord from '@/features/drill/hooks/useDrillRecord'
 
 // idle : 연습시작 |  open : 시작 | selected : 선택 | missed : 실패 | completed : 완료
 type GameState = 'idle' | 'open' | 'selected' | 'missed' | 'completed'
 
 export default function CancelTicketDrill() {
+  const { saveRecord, saveMessage } = useDrillRecord()
   //게임 상태 관리
   const [gameState, setGameState] = useState<GameState>('idle')
 
@@ -16,7 +17,8 @@ export default function CancelTicketDrill() {
   //열
   const [column, setColumn] = useState(0)
 
-  const { time, intervalRef, resetStopWatch, recordLap } = useStopwatch()
+  const { time, resetStopWatch, stopStopWatch } = useDrillStopwatch()
+  const [previousTime, setPreviousTime] = useState(0)
 
   //open할 좌석 index 저장
   const [openSeatIndex, setOpenSeatIndex] = useState<number | null>(null)
@@ -30,8 +32,9 @@ export default function CancelTicketDrill() {
   const [failureMessage, setFailureMessage] = useState('')
 
   function failGame(message: string) {
-    clearInterval(intervalRef.current)
-    intervalRef.current = undefined
+    // 실패한 시도 시간도 합산. 재시도 대기 시간은 기록에서 제외
+    const elapsed = stopStopWatch()
+    setPreviousTime((prev) => prev + elapsed)
     setFailCount((prev) => prev + 1)
     setOpenSeatIndex(null)
     setFailureMessage(message)
@@ -53,8 +56,9 @@ export default function CancelTicketDrill() {
     const limitMs = gameState === 'open' ? 2000 : 4000
     const timeoutId = window.setTimeout(
       () => {
-        clearInterval(intervalRef.current)
-        intervalRef.current = undefined
+        // 제한 시간이 지난 시도도 누적해서 마지막 성공 시간만 저장되지 않게 처리
+        const elapsed = stopStopWatch()
+        setPreviousTime((prev) => prev + elapsed)
         setFailCount((prev) => prev + 1)
         setOpenSeatIndex(null)
         setGameState('missed')
@@ -69,11 +73,16 @@ export default function CancelTicketDrill() {
 
     // 좌석 선택 또는 화면 이탈 시 실패 타이머 취소
     return () => window.clearTimeout(timeoutId)
-  }, [gameState, startedAt, intervalRef])
+    // 타이머는 현재 시도의 시작 시각이 바뀔 때만 다시 설정
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [gameState, startedAt])
 
   return (
     <section className="min-h-screen px-5 py-5">
       <div className="mx-auto max-w-7xl">
+        <p role="status" aria-live="polite" className="min-h-6 text-sm text-purple-800">
+          {saveMessage}
+        </p>
         <div>
           <h1 className="text-3xl font-bold sm:text-5xl">
             취소표 잡기
@@ -85,13 +94,14 @@ export default function CancelTicketDrill() {
           </p>
         </div>
 
+        {/* 연습하는 좌석도는 연보라색, 미션과 결과는 흰색 카드로 구분 */}
         <div className="flex flex-col gap-4 mt-3 lg:flex-row">
           {/*미션정보*/}
-          <div className="flex min-w-0 flex-1 flex-col rounded-2xl bg-purple-100 p-4 xl:p-6">
+          <div className="flex min-w-0 flex-1 flex-col rounded-2xl border border-purple-100 bg-white p-4 shadow-sm xl:p-6">
             <h2 className="mb-5 text-2xl font-extrabold">미션 정보</h2>
 
             <div className="flex flex-col gap-4">
-              <div className="rounded-2xl border border-purple-100 bg-purple-50 p-5">
+              <div className="rounded-2xl bg-slate-50 p-5">
                 <p className="font-semibold text-slate-600">목표좌석</p>
                 <p className=" border-purple-100 px-3 py-2 text-xl font-extrabold">
                   아무좌석이나 (취소표)
@@ -101,19 +111,19 @@ export default function CancelTicketDrill() {
                 </p>
               </div>
 
-              <div className="rounded-2xl border border-purple-100 bg-purple-50 p-5">
-                <p className="font-semibold text-slate-600">선택 소요 시간</p>
+              <div className="rounded-2xl bg-slate-50 p-5">
+                <p className="font-semibold text-slate-600">현재 시도 시간 (초)</p>
                 <p className="mt-3 text-3xl font-extrabold text-purple-600">
                   {(time / 1000).toFixed(3)}
                 </p>
               </div>
 
-              <div className="rounded-2xl border border-purple-100 bg-purple-50 p-5">
+              <div className="rounded-2xl bg-slate-50 p-5">
                 <p className="font-semibold text-slate-600">실패 횟수</p>
                 <p className="mt-3 text-3xl font-extrabold text-slate-950">{failCount}회</p>
               </div>
 
-              <div className="rounded-2xl border border-purple-100 bg-purple-50 p-5">
+              <div className="rounded-2xl bg-slate-50 p-5">
                 <p className="font-semibold text-slate-600">클릭 횟수</p>
                 <p className="mt-3 text-3xl font-extrabold text-slate-950">{clickCount}회</p>
               </div>
@@ -126,7 +136,7 @@ export default function CancelTicketDrill() {
               <h2 className="font-extrabold">좌석도</h2>
             </div>
 
-            <div className="mt-3 shrink-0 rounded-xl bg-purple-50 p-4">
+            <div className="mt-3 shrink-0 rounded-xl border border-purple-200 bg-purple-50 p-4">
               {gameState !== 'idle' ? (
                 <svg
                   viewBox="0 0 320 350"
@@ -200,7 +210,7 @@ export default function CancelTicketDrill() {
             )}
             <div className="flex flex-row justify-center py-6 gap-2">
               <button
-                className="flex-1  w-full rounded-xl bg-purple-600 py-4 text-lg font-bold text-white shadow-sm transition-colors hover:bg-purple-700 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-purple-600"
+                className="flex-1  w-full rounded-xl bg-purple-700 py-4 text-lg font-bold text-white shadow-sm transition-colors hover:bg-purple-800 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-purple-600"
                 disabled={gameState !== 'missed'}
                 onClick={() => {
                   startGame()
@@ -209,11 +219,12 @@ export default function CancelTicketDrill() {
                 새로고침
               </button>
               <button
-                className="flex-1  w-full rounded-xl bg-purple-600 py-4 text-lg font-bold text-white shadow-sm transition-colors hover:bg-purple-700 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-purple-600"
+                className="flex-1  w-full rounded-xl bg-purple-700 py-4 text-lg font-bold text-white shadow-sm transition-colors hover:bg-purple-800 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-purple-600"
                 disabled={gameState !== 'idle' && gameState !== 'completed'}
                 onClick={() => {
                   setFailCount(0)
                   setClickCount(0)
+                  setPreviousTime(0)
                   startGame()
                 }}
               >
@@ -223,7 +234,7 @@ export default function CancelTicketDrill() {
           </div>
 
           {/*선택한 좌석*/}
-          <div className="flex min-w-0 flex-1 flex-col rounded-2xl bg-purple-100 p-4 xl:p-6">
+          <div className="flex min-w-0 flex-1 flex-col rounded-2xl border border-purple-100 bg-white p-4 shadow-sm xl:p-6">
             {gameState === 'completed' ? (
               <div className="flex flex-1 flex-col gap-5">
                 <h2 className="text-2xl font-extrabold">연습 결과</h2>
@@ -237,8 +248,10 @@ export default function CancelTicketDrill() {
                       </div>
                     </div>
                     <div className="flex justify-between gap-4">
-                      <div className="text-slate-500">예매 완료 시간</div>
-                      <div className="font-semibold">{(time / 1000).toFixed(3)}초</div>
+                      <div className="text-slate-500">누적 연습 시간 (실패 포함)</div>
+                      <div className="font-semibold">
+                        {((previousTime + time) / 1000).toFixed(3)}초
+                      </div>
                     </div>
                     <div className="flex justify-between gap-4">
                       <div className="text-slate-500">실패 횟수</div>
@@ -255,7 +268,7 @@ export default function CancelTicketDrill() {
               <div className="flex flex-1 flex-col gap-5">
                 <h2 className="text-2xl font-extrabold">선택한 좌석</h2>
 
-                <div className="rounded-2xl border border-purple-100 bg-purple-50 p-5">
+                <div className="rounded-2xl bg-slate-50 p-5">
                   <p className="text-sm font-semibold text-purple-600">선택 좌석</p>
                   <p className="mt-2 text-2xl font-extrabold text-purple-700">
                     {gameState === 'selected'
@@ -303,23 +316,21 @@ export default function CancelTicketDrill() {
                 <div className="mt-auto pt-4">
                   <button
                     type="button"
-                    className="w-full rounded-xl bg-purple-600 py-4 text-lg font-bold text-white disabled:opacity-40 disabled:cursor-not-allowed"
+                    className="w-full rounded-xl bg-purple-700 py-4 text-lg font-bold text-white transition-colors hover:bg-purple-800 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-purple-700 disabled:opacity-40 disabled:cursor-not-allowed"
                     disabled={gameState !== 'selected'}
                     onClick={() => {
                       if (performance.now() - startedAt >= 4000) {
                         failGame('이미 결제가 완료되었습니다. 새로고침 후 다시 도전하세요.')
                         return
                       }
-                      clearInterval(intervalRef.current)
-                      intervalRef.current = undefined
-                      recordLap()
+                      const elapsed = previousTime + stopStopWatch()
                       setGameState('completed')
 
-                      savePracticeRecord({
+                      void saveRecord({
                         nickname: getStoredNickname(),
                         practice_type: 'cancel-ticket',
                         status: 'completed',
-                        durationMS: time,
+                        durationMS: elapsed,
                         clickCount,
                         errorCount: failCount,
                       })
