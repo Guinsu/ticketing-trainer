@@ -1,4 +1,5 @@
 import { formatDate } from '@/common/utils/formatDate'
+import { posterThumb } from '@/common/utils/poster'
 import { CONCERTS } from '@/data/concerts'
 import ConcertInfo from '@/features/concert/components/concertInfo'
 import { useState } from 'react'
@@ -24,7 +25,7 @@ const HomeScreen = () => {
         </span>
       </div>
 
-      <div className="mt-6 grid gap-8 lg:grid-cols-[2fr_3fr]">
+      <div className="mt-6 grid grid-cols-1 gap-8 lg:grid-cols-[2fr_3fr]">
         <ul className="space-y-2">
           {CONCERTS.map((concert) => {
             const isSelected = concert.id === selectedId
@@ -43,7 +44,13 @@ const HomeScreen = () => {
                       : 'border-gray-200 hover:border-primary'
                   }`}
                 >
-                  <img src={concert.poster} alt="" className="h-24 w-18 shrink-0 bg-gray-200 object-cover" />
+                  <img
+                    src={posterThumb(concert.poster)}
+                    alt=""
+                    width={72}
+                    height={96}
+                    className="h-24 w-18 shrink-0 bg-gray-200 object-cover"
+                  />
                   <div className="min-w-0">
                     <span className="border border-primary px-1.5 py-px text-[11px] font-bold text-primary">
                       {concert.category}

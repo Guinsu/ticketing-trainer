@@ -1,4 +1,5 @@
 import { formatDate, formatTime } from '@/common/utils/formatDate'
+import { posterLarge, posterSrcSet } from '@/common/utils/poster'
 import type { CONCERTS } from '@/data/concerts'
 
 // TODO: types/concert.ts의 Concert로 교체
@@ -19,7 +20,10 @@ const ConcertInfo = ({ concert }: ConcertInfoProps) => {
   return (
     <div className="flex flex-col gap-6 sm:flex-row">
       <img
-        src={concert.poster}
+        src={posterLarge(concert.poster)}
+        srcSet={posterSrcSet(concert.poster)}
+        sizes="(min-width: 640px) 224px, 100vw"
+        fetchPriority="high"
         alt={`${concert.title} 포스터`}
         className="aspect-3/4 w-full bg-gray-200 object-cover sm:w-56"
       />
