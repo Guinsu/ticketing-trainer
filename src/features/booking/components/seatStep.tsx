@@ -1,28 +1,43 @@
 import { KSPO_DOME } from '@/data/kspoDome'
 import SeatMap from '@/features/seat/components/seatMap'
 import ZoneMinimap from '@/features/seat/components/zoneMinimap'
-import { createSoldSeats, summarizeSeats } from '@/features/seat/utils/seatSimulator'
+import CaptchaStep from '@/features/booking/components/captchaStep'
+import {
+  createSoldSeats,
+  getTakenChance,
+  summarizeSeats,
+} from '@/features/seat/utils/seatSimulator'
 import type { Seat, SeatStatusMap, Zone } from '@/types/seat'
 import type { QueueResult } from '@/types/simulation'
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 
 interface SeatStepProps {
   queueResult: QueueResult
-  onNext: (seat: Seat) => void
+  captchaPassed: boolean
+  onCaptchaPass: (misses: number) => void
+  onChangeSchedule: () => void
+  onNext: (seat: Seat, takenCount: number) => void
 }
 
 /**
  * SeatStep
- * @description 예매창 2단계, 구역 배치도 → 구역 좌석맵 선택과 좌석 등급·선택 좌석 패널
+ * @description 예매창 2단계, 보안문자 → 구역 배치도 → 구역 좌석맵 선택과 좌석 등급·선택 좌석 패널
  */
-const SeatStep = ({ queueResult, onNext }: SeatStepProps) => {
+const SeatStep = ({
+  queueResult,
+  captchaPassed,
+  onCaptchaPass,
+  onChangeSchedule,
+  onNext,
+}: SeatStepProps) => {
   const [zone, setZone] = useState<Zone | null>(null)
   const [selectedSeat, setSelectedSeat] = useState<Seat | null>(null)
-  // 앞 인원·seed로 매진 좌석과 잔여석 요약 계산, 마운트 시 1회
-  const [{ soldMap, summary }] = useState(() => {
-    const soldMap = createSoldSeats(KSPO_DOME, queueResult.peopleAhead, queueResult.seed)
-    return { soldMap, summary: summarizeSeats(KSPO_DOME, soldMap) }
-  })
+  const [takenCount, setTakenCount] = useState(0)
+  // 앞 인원·seed로 첫 매진 좌석 계산, 선점 실패한 좌석이 더해진다
+  const [soldMap, setSoldMap] = useState(() =>
+    createSoldSeats(KSPO_DOME, queueResult.peopleAhead, queueResult.seed),
+  )
+  const summary = useMemo(() => summarizeSeats(KSPO_DOME, soldMap), [soldMap])
   const statusMap: SeatStatusMap = selectedSeat
     ? { ...soldMap, [selectedSeat.id]: 'selected' }
     : soldMap
@@ -33,10 +48,24 @@ const SeatStep = ({ queueResult, onNext }: SeatStepProps) => {
   const handleSeatClick = (seat: Seat) =>
     setSelectedSeat((prev) => (prev?.id === seat.id ? null : seat))
 
+  // 앞 인원이 많을수록 다른 사람이 먼저 잡았을 확률이 높다, 실패한 좌석은 매진 처리
+  const handleComplete = (seat: Seat) => {
+    if (Math.random() >= getTakenChance(queueResult.peopleAhead)) {
+      onNext(seat, takenCount)
+      return
+    }
+    setSoldMap((prev) => ({ ...prev, [seat.id]: 'sold' }))
+    setSelectedSeat(null)
+    setTakenCount((prev) => prev + 1)
+  }
+
   return (
-    <div className="grid min-h-[600px] lg:grid-cols-[1fr_360px]">
-      <section className="relative flex items-center justify-center bg-gray-50 px-6 pt-16 pb-24">
-        {/* TODO: 보안문자 모달(captchaBox) overlay */}
+    <div className="relative grid min-h-[600px] lg:grid-cols-[1fr_360px]">
+      {!captchaPassed && <CaptchaStep onPass={onCaptchaPass} onChangeSchedule={onChangeSchedule} />}
+      <section
+        inert={!captchaPassed}
+        className="relative flex items-center justify-center bg-gray-50 px-6 pt-16 pb-24"
+      >
         {zone && zoneGrade ? (
           <>
             <button
@@ -75,7 +104,7 @@ const SeatStep = ({ queueResult, onNext }: SeatStepProps) => {
         )}
       </section>
 
-      <aside className="flex flex-col border-l border-gray-200 bg-white p-6">
+      <aside inert={!captchaPassed} className="flex flex-col border-l border-gray-200 bg-white p-6">
         <h2 className="border-b-2 border-gray-900 pb-3 text-lg font-extrabold tracking-tight">
           좌석 등급
         </h2>
@@ -99,6 +128,11 @@ const SeatStep = ({ queueResult, onNext }: SeatStepProps) => {
         <h2 className="mt-8 border-b-2 border-gray-900 pb-3 text-lg font-extrabold tracking-tight">
           선택 좌석
         </h2>
+        {takenCount > 0 && !selectedSeat && (
+          <p role="alert" className="mt-4 bg-red-50 p-3 text-sm font-bold text-red-600">
+            이미 선택된 좌석입니다. 다른 좌석을 선택해주세요.
+          </p>
+        )}
         {selectedSeat && selectedGrade ? (
           <div className="flex-1 py-6">
             <p className="text-lg font-bold">
@@ -116,7 +150,7 @@ const SeatStep = ({ queueResult, onNext }: SeatStepProps) => {
         <button
           type="button"
           disabled={!selectedSeat}
-          onClick={() => selectedSeat && onNext(selectedSeat)}
+          onClick={() => selectedSeat && handleComplete(selectedSeat)}
           className="py-4 text-lg font-bold enabled:cursor-pointer enabled:bg-primary enabled:text-white enabled:hover:bg-primary-hover disabled:bg-gray-100 disabled:text-gray-400"
         >
           선택 완료

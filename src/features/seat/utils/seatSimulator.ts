@@ -80,3 +80,10 @@ export const summarizeSeats = (venue: Venue, soldMap: SeatStatusMap) => {
 
   return { remainByZone, remainByGrade, soldOutZoneIds }
 }
+
+const MAX_TAKEN_CHANCE = 0.6 // 선점 실패 확률 상한
+
+// 선택 완료 시 다른 사람이 먼저 잡았을 확률, 매진 곡선과 같은 모양으로 앞 인원이 많을수록 높다
+// - 0.1초 7%, 0.5초 29%, 1초 44%
+export const getTakenChance = (peopleAhead: number) =>
+  MAX_TAKEN_CHANCE * (1 - Math.exp(-Math.max(0, peopleAhead) / SELL_OUT_SCALE))

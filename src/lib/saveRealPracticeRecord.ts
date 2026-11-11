@@ -12,6 +12,8 @@ type RealPracticeRecordInput = {
   durationMs: number
   reactionMs: number
   scheduleSelectionMs: number
+  captchaMs: number
+  captchaMisses: number
   seatSelectionMs: number
 }
 
@@ -21,6 +23,8 @@ async function saveRealPracticeRecord({
   durationMs,
   reactionMs,
   scheduleSelectionMs,
+  captchaMs,
+  captchaMisses,
   seatSelectionMs,
 }: RealPracticeRecordInput) {
   if (nickname.trim() === '') return
@@ -47,6 +51,8 @@ async function saveRealPracticeRecord({
     duration_ms: Math.round(durationMs),
     reaction_ms: Math.round(reactionMs),
     schedule_selection_ms: Math.round(scheduleSelectionMs),
+    captcha_ms: Math.round(captchaMs),
+    captcha_misses: captchaMisses,
     seat_selection_ms: Math.round(seatSelectionMs),
   })
 
