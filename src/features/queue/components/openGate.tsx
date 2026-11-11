@@ -1,4 +1,5 @@
 import { formatRemaining } from '@/common/utils/formatDate'
+import { posterLarge, posterSrcSet } from '@/common/utils/poster'
 import type { Concert } from '@/types/concert'
 
 interface OpenGateProps {
@@ -14,7 +15,9 @@ const OpenGate = ({ concert, remaining, onEnter }: OpenGateProps) => {
     <div className="flex min-h-screen flex-col items-center bg-gray-50 px-4 pt-20">
       <h1 className="text-2xl font-extrabold tracking-tight">예매는 오픈 시간부터 가능해요</h1>
       <img
-        src={concert.poster}
+        src={posterLarge(concert.poster)}
+        srcSet={posterSrcSet(concert.poster)}
+        sizes="192px"
         alt={`${concert.title} 포스터`}
         className="mt-10 aspect-3/4 w-48 border border-gray-200 bg-gray-200 object-cover"
       />
