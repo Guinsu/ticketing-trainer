@@ -12,8 +12,8 @@ const noJitter = () => 0.5
 
 describe('createQueue', () => {
   it('늦게 누를수록 시작 순번이 커진다', () => {
-    expect(createQueue(300, noJitter).peopleAhead).toBe(350)
-    expect(createQueue(5000, noJitter).peopleAhead).toBe(5050)
+    expect(createQueue(300, noJitter).peopleAhead).toBe(15050)
+    expect(createQueue(5000, noJitter).peopleAhead).toBe(250050)
   })
 
   it('음수 반응 시간은 0으로 처리한다', () => {
