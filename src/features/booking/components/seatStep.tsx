@@ -9,7 +9,9 @@ import {
 } from '@/features/seat/utils/seatSimulator'
 import type { Seat, SeatStatusMap, Zone } from '@/types/seat'
 import type { QueueResult } from '@/types/simulation'
-import { useMemo, useState } from 'react'
+import { useMemo, useState, type CSSProperties } from 'react'
+
+const MOBILE_SEAT_PX = 24
 
 interface SeatStepProps {
   queueResult: QueueResult
@@ -60,7 +62,7 @@ const SeatStep = ({
   }
 
   return (
-    <div className="relative grid min-h-[600px] lg:grid-cols-[1fr_360px]">
+    <div className="relative grid min-h-[600px] grid-cols-1 pb-36 lg:grid-cols-[1fr_360px] lg:pb-0">
       {!captchaPassed && <CaptchaStep onPass={onCaptchaPass} onChangeSchedule={onChangeSchedule} />}
       <section
         inert={!captchaPassed}
@@ -75,19 +77,31 @@ const SeatStep = ({
             >
               ← 구역 다시 선택
             </button>
-            <div className="w-full max-w-2xl">
+            <div className="w-full max-w-2xl min-w-0">
               <p className="mb-3 text-lg font-extrabold">
                 {zone.label}{' '}
                 <span className="text-sm text-gray-500">
                   잔여 {summary.remainByZone[zone.id].toLocaleString()}석
                 </span>
               </p>
-              <SeatMap
-                zone={zone}
-                grade={zoneGrade}
-                statusMap={statusMap}
-                onSeatClick={handleSeatClick}
-              />
+              {/* 모바일에서 좌석 하나가 손가락으로 누를 만한 크기(약 24px)가 되도록 가로 스크롤 */}
+              <div className="overflow-x-auto">
+                <div
+                  className="min-w-(--seat-map-min-width) lg:min-w-0"
+                  style={
+                    {
+                      '--seat-map-min-width': `${zone.seatsPerRow * MOBILE_SEAT_PX + 32}px`,
+                    } as CSSProperties
+                  }
+                >
+                  <SeatMap
+                    zone={zone}
+                    grade={zoneGrade}
+                    statusMap={statusMap}
+                    onSeatClick={handleSeatClick}
+                  />
+                </div>
+              </div>
             </div>
           </>
         ) : (
@@ -125,36 +139,42 @@ const SeatStep = ({
           ))}
         </ul>
 
-        <h2 className="mt-8 border-b-2 border-gray-900 pb-3 text-lg font-extrabold tracking-tight">
-          선택 좌석
-        </h2>
-        {takenCount > 0 && !selectedSeat && (
-          <p role="alert" className="mt-4 bg-red-50 p-3 text-sm font-bold text-red-600">
-            이미 선택된 좌석입니다. 다른 좌석을 선택해주세요.
-          </p>
-        )}
-        {selectedSeat && selectedGrade ? (
-          <div className="flex-1 py-6">
-            <p className="text-lg font-bold">
-              {selectedSeat.zoneId}구역 {selectedSeat.row}열 {selectedSeat.number}번
+        {/* 모바일에서는 좌석맵을 보면서 바로 누를 수 있게 화면 아래에 고정 */}
+        <div className="fixed inset-x-0 bottom-0 z-10 border-t border-gray-200 bg-white p-4 lg:static lg:flex lg:flex-1 lg:flex-col lg:border-0 lg:p-0">
+          <h2 className="mt-8 hidden border-b-2 border-gray-900 pb-3 text-lg font-extrabold tracking-tight lg:block">
+            선택 좌석
+          </h2>
+          {takenCount > 0 && !selectedSeat && (
+            <p
+              role="alert"
+              className="mb-3 bg-red-50 p-3 text-sm font-bold text-red-600 lg:mt-4 lg:mb-0"
+            >
+              이미 선택된 좌석입니다. 다른 좌석을 선택해주세요.
             </p>
-            <p className="mt-1 text-gray-600">
-              {selectedGrade.label} · {selectedGrade.price.toLocaleString()}원
+          )}
+          {selectedSeat && selectedGrade ? (
+            <div className="pb-3 lg:flex-1 lg:py-6">
+              <p className="font-bold lg:text-lg">
+                {selectedSeat.zoneId}구역 {selectedSeat.row}열 {selectedSeat.number}번
+              </p>
+              <p className="mt-1 text-sm text-gray-600 lg:text-base">
+                {selectedGrade.label} · {selectedGrade.price.toLocaleString()}원
+              </p>
+            </div>
+          ) : (
+            <p className="pb-3 text-sm text-gray-400 lg:flex lg:flex-1 lg:items-center lg:justify-center lg:py-16 lg:text-base">
+              선택한 좌석이 없습니다.
             </p>
-          </div>
-        ) : (
-          <p className="flex flex-1 items-center justify-center py-16 text-gray-400">
-            선택한 좌석이 없습니다.
-          </p>
-        )}
-        <button
-          type="button"
-          disabled={!selectedSeat}
-          onClick={() => selectedSeat && handleComplete(selectedSeat)}
-          className="py-4 text-lg font-bold enabled:cursor-pointer enabled:bg-primary enabled:text-white enabled:hover:bg-primary-hover disabled:bg-gray-100 disabled:text-gray-400"
-        >
-          선택 완료
-        </button>
+          )}
+          <button
+            type="button"
+            disabled={!selectedSeat}
+            onClick={() => selectedSeat && handleComplete(selectedSeat)}
+            className="w-full py-4 text-lg font-bold enabled:cursor-pointer enabled:bg-primary enabled:text-white enabled:hover:bg-primary-hover disabled:bg-gray-100 disabled:text-gray-400"
+          >
+            선택 완료
+          </button>
+        </div>
       </aside>
     </div>
   )

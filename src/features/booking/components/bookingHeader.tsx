@@ -40,7 +40,7 @@ const BookingHeader = ({
     <header className="flex flex-wrap items-center justify-between gap-3 border-b border-gray-200 bg-white px-6 py-4">
       <div className="flex flex-wrap items-center gap-3">
         <h1 className="font-extrabold tracking-tight">{concertTitle}</h1>
-        <span className="h-4 w-px bg-gray-300" />
+        <span className="hidden h-4 w-px bg-gray-300 sm:block" />
         <p className="font-bold">{scheduleText}</p>
         <button
           type="button"
