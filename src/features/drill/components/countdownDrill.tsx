@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react'
 import { useCountdown } from '@/common/hooks/useCountdown'
-import useStopwatch from '@/common/hooks/useStopwatch'
+import useDrillStopwatch from '@/features/drill/hooks/useDrillStopwatch'
 import { getStoredNickname } from '@/common/utils/nicknameStrorage'
-import savePracticeRecord from '@/lib/savePracticeRecord'
+import useDrillRecord from '@/features/drill/hooks/useDrillRecord'
 
 // idle : 연습시작 | countdown : 카운트다운 | ready : 대기
 type GameState = 'idle' | 'countdown' | 'ready'
@@ -29,6 +29,7 @@ function DrillCountdown({ onComplete }: { onComplete: () => void }) {
 }
 
 export default function CountdownDrill() {
+  const { saveRecord, saveMessage } = useDrillRecord()
   //게임 상태 관리
   const [gameState, setGameState] = useState<GameState>('idle')
 
@@ -37,8 +38,16 @@ export default function CountdownDrill() {
     setGameState('countdown')
   }
 
-  const { time, laps, intervalRef, setLaps, resetStopWatch, recordLap, bestRecord, averageRecord } =
-    useStopwatch()
+  const {
+    time,
+    laps,
+    setLaps,
+    resetStopWatch,
+    stopStopWatch,
+    recordLap,
+    bestRecord,
+    averageRecord,
+  } = useDrillStopwatch()
 
   // 카운트다운 종료 시 예매 버튼을 활성화하고 반응 시간 측정 시작
   function handleCountdownComplete() {
@@ -49,6 +58,9 @@ export default function CountdownDrill() {
   return (
     <section className="min-h-screen px-5 py-5">
       <div className="mx-auto max-w-7xl">
+        <p role="status" aria-live="polite" className="min-h-6 text-sm text-purple-800">
+          {saveMessage}
+        </p>
         <div>
           <h1 className="text-3xl font-bold sm:text-5xl">
             카운트다운
@@ -59,9 +71,10 @@ export default function CountdownDrill() {
           </p>
         </div>
 
+        {/* 연습 영역은 연보라색, 기록은 흰색 카드로 구분 */}
         <div className="flex flex-col gap-4 mt-3 lg:flex-row">
           <div className="flex min-w-0 flex-col gap-3 lg:flex-[2]">
-            <div className="flex flex-1 rounded-xl flex-col border-white border-2 bg-purple-100">
+            <div className="flex flex-1 rounded-2xl flex-col bg-purple-100">
               <div className="mx-3 my-3 flex flex-1 flex-col">
                 <div className="flex flex-wrap items-center justify-between gap-3">
                   <div className="flex items-center gap-2.5 text-2xl">
@@ -74,7 +87,7 @@ export default function CountdownDrill() {
                   </span>
                 </div>
 
-                <div className="flex min-h-96 flex-1 flex-col gap-4 bg-gray-200 rounded-xl mt-3 p-5">
+                <div className="flex min-h-96 flex-1 flex-col gap-4 border border-purple-200 bg-purple-50 rounded-xl mt-3 p-5">
                   <img
                     src="/posters/1.jpg"
                     alt="공연 포스터"
@@ -83,26 +96,25 @@ export default function CountdownDrill() {
                   <button
                     type="button"
                     disabled={gameState === 'countdown'}
-                    className="mx-auto rounded-xl bg-purple-600 py-4 text-lg font-bold text-white w-60"
+                    className="mx-auto rounded-xl bg-purple-700 py-4 text-lg font-bold text-white transition-colors hover:bg-purple-800 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-purple-700 w-60"
                     onClick={() => {
                       if (gameState === 'idle') {
                         if (laps.length >= 5) {
                           setLaps([])
                           resetStopWatch()
-                          clearInterval(intervalRef.current)
-                          intervalRef.current = undefined
+                          stopStopWatch()
                         }
                         startGame()
                       } else if (gameState === 'ready') {
-                        recordLap()
-                        clearInterval(intervalRef.current)
-                        intervalRef.current = undefined
+                        // 버튼이 활성화된 뒤 실제로 클릭한 시점까지 기록
+                        const elapsed = recordLap()
+                        stopStopWatch()
                         setGameState('idle')
-                        savePracticeRecord({
+                        void saveRecord({
                           nickname: getStoredNickname(),
                           practice_type: 'countdown',
                           status: 'completed',
-                          durationMS: time,
+                          durationMS: elapsed,
                         })
                       }
                     }}
@@ -121,7 +133,7 @@ export default function CountdownDrill() {
             </div>
           </div>
 
-          <aside className="min-w-0 border-white border bg-purple-100 rounded-xl p-6 lg:flex-1">
+          <aside className="min-w-0 rounded-2xl border border-purple-100 bg-white p-6 shadow-sm lg:flex-1">
             <div className="flex items-center justify-between">
               <h2 className="text-xl font-bold">현재기록</h2>
               <p className="text-3xl font-extrabold">
@@ -148,7 +160,7 @@ export default function CountdownDrill() {
               </ol>
 
               <div className="mt-5 grid grid-cols-2 gap-3">
-                <div className="rounded-2xl border border-purple-100 bg-purple-50 p-4">
+                <div className="rounded-2xl bg-slate-50 p-4">
                   <p className="text-sm font-medium text-purple-700">최고기록</p>
                   <p className="mt-2 text-2xl font-bold tabular-nums text-purple-900">
                     {laps.length > 0 ? (bestRecord() / 1000).toFixed(3) : '—'}
@@ -156,7 +168,7 @@ export default function CountdownDrill() {
                   </p>
                 </div>
 
-                <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                <div className="rounded-2xl bg-slate-50 p-4">
                   <p className="text-sm font-medium text-slate-600">평균기록</p>
                   <p className="mt-2 text-2xl font-bold tabular-nums text-slate-800">
                     {laps.length > 0 ? (averageRecord() / 1000).toFixed(3) : '—'}

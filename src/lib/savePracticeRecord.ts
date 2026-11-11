@@ -24,7 +24,7 @@ async function savePracticeRecord({
   errorCount = 0,
 }: PracticeRecordInput) {
   if (nickname.trim() === '') {
-    return
+    return 'skipped' as const
   }
 
   //닉네임에 해당하는 ID 조회
@@ -42,7 +42,7 @@ async function savePracticeRecord({
       error_code: profileError.code,
       practice_type,
     })
-    return
+    return 'failed' as const
   }
 
   //데이터 저장
@@ -66,8 +66,9 @@ async function savePracticeRecord({
       practice_type,
       user_id: profile.id,
     })
-    return
+    return 'failed' as const
   }
+  return 'saved' as const
 }
 
 export default savePracticeRecord

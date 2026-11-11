@@ -42,8 +42,9 @@ const DrillScreen = () => {
           </p>
         </div>
 
+        {/* 연습 목록은 흰색 카드에 옅은 보라색 미리보기 영역으로 구성 */}
         <div className="flex flex-col gap-4 mt-3 lg:flex-row">
-          <div className="flex min-w-0 flex-1 flex-col rounded-2xl bg-purple-100 p-4 xl:p-6">
+          <div className="flex min-w-0 flex-1 flex-col rounded-2xl border border-purple-100 bg-white p-4 shadow-sm xl:p-6">
             <div className="flex items-start gap-2.5 text-xl xl:text-2xl">
               <p className="shrink-0 px-3.5 bg-purple-800 rounded-2xl text-white">01</p>
               <h2 className="font-extrabold">보안문자 입력 연습</h2>
@@ -51,8 +52,12 @@ const DrillScreen = () => {
 
             {/* 보안문자 연습*/}
             <div className="flex flex-1 flex-col gap-3">
-              <div className="mt-3 h-[clamp(140px,24vh,220px)] shrink-0 rounded-xl bg-purple-50">
-                {/* 연습 미리보기 이미지 추가 예정 */}
+              <div className="mt-3 flex h-[clamp(140px,24vh,220px)] shrink-0 items-center justify-center overflow-hidden rounded-xl border border-purple-200 bg-purple-50">
+                <img
+                  className="h-full w-full object-contain object-[35%_center]"
+                  src="/drill-previews/captcha.jpg"
+                  alt="보안문자 입력 연습"
+                />
               </div>
               <div className="mt-1">
                 <h3 className="font-extrabold">보안문자 연습</h3>
@@ -60,7 +65,7 @@ const DrillScreen = () => {
                   실제 예매와 동일한 형태의 보안문자를 반복해서 연습해보세요.
                 </p>
               </div>
-              <div className="space-y-3 rounded-xl bg-gray-200 px-4 py-10">
+              <div className="min-h-40 space-y-3 rounded-xl bg-slate-50 px-4 py-5">
                 <p>1. 입력 시간 측정</p>
                 <p>2. 정확도 및 오답률 분석</p>
                 <p>3. 다양한 유형의 보안문자 제공</p>
@@ -68,14 +73,14 @@ const DrillScreen = () => {
 
               <Link
                 to="/drill/captchaDrill"
-                className="mt-auto block rounded-xl bg-purple-600 py-3 text-lg font-bold text-white text-center"
+                className="mt-auto block rounded-xl bg-purple-700 py-3 text-lg font-bold text-white text-center transition-colors hover:bg-purple-800 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-purple-700"
               >
                 연습 시작하기
               </Link>
             </div>
           </div>
 
-          <div className="flex min-w-0 flex-1 flex-col rounded-2xl bg-purple-100 p-4 xl:p-6">
+          <div className="flex min-w-0 flex-1 flex-col rounded-2xl border border-purple-100 bg-white p-4 shadow-sm xl:p-6">
             <div className="flex items-start gap-2.5 text-xl xl:text-2xl">
               <p className="shrink-0 px-3.5 bg-purple-800 rounded-2xl text-white">02</p>
               <h2 className="font-extrabold">좌석 선택 연습</h2>
@@ -83,8 +88,12 @@ const DrillScreen = () => {
 
             {/* 좌석 선택 연습*/}
             <div className="flex flex-1 flex-col gap-3">
-              <div className="mt-3 h-[clamp(140px,24vh,220px)] shrink-0 rounded-xl bg-purple-50">
-                {/* 연습 미리보기 이미지 추가 예정 */}
+              <div className="mt-3 flex h-[clamp(140px,24vh,220px)] shrink-0 items-center justify-center overflow-hidden rounded-xl border border-purple-200 bg-purple-50">
+                <img
+                  className="h-full w-full object-contain"
+                  src="/drill-previews/seat.jpg"
+                  alt="좌석 선택 연습"
+                />
               </div>
               <div className="mt-1">
                 <h3 className="font-extrabold">좌석 선택 연습</h3>
@@ -93,28 +102,28 @@ const DrillScreen = () => {
                 </p>
               </div>
 
-              <div className="bg-gray-200 rounded-xl px-4 py-2">
+              <div className="min-h-40 space-y-3 rounded-xl bg-slate-50 px-4 py-5">
                 <p>1. 지정 좌석 선택 연습 정해진 좌석을 빠르게 선택하는 연습입니다.</p>
                 <p>2. 취소표 잡기 연습 실시간으로 열리는 좌석을 빠르게 선택하는 연습입니다.</p>
               </div>
 
               <Link
                 to="/drill/target-seat"
-                className="mt-auto block rounded-xl bg-purple-600 py-3 text-lg font-bold text-white text-center"
+                className="mt-auto block rounded-xl bg-purple-700 py-3 text-lg font-bold text-white text-center transition-colors hover:bg-purple-800 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-purple-700"
               >
                 지정 좌석 선택 연습
               </Link>
 
               <Link
                 to="/drill/cancel-ticket"
-                className="mt-auto block rounded-xl bg-purple-600 py-3 text-lg font-bold text-white text-center"
+                className="mt-auto block rounded-xl bg-purple-700 py-3 text-lg font-bold text-white text-center transition-colors hover:bg-purple-800 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-purple-700"
               >
                 취소표 잡기 연습
               </Link>
             </div>
           </div>
 
-          <div className="flex min-w-0 flex-1 flex-col rounded-2xl bg-purple-100 p-4 xl:p-6">
+          <div className="flex min-w-0 flex-1 flex-col rounded-2xl border border-purple-100 bg-white p-4 shadow-sm xl:p-6">
             <div className="flex items-start gap-2.5 text-xl xl:text-2xl">
               <p className="shrink-0 px-3.5 bg-purple-800 rounded-2xl text-white">03</p>
               <h2 className="font-extrabold">카운트다운 버튼 클릭 연습</h2>
@@ -122,8 +131,12 @@ const DrillScreen = () => {
 
             {/* 카운트다운 버튼 클릭 연습*/}
             <div className="flex flex-1 flex-col gap-3">
-              <div className="mt-3 h-[clamp(140px,24vh,220px)] shrink-0 rounded-xl bg-purple-50">
-                {/* 연습 미리보기 이미지 추가 예정 */}
+              <div className="mt-3 flex h-[clamp(140px,24vh,220px)] shrink-0 items-center justify-center overflow-hidden rounded-xl border border-purple-200 bg-purple-50">
+                <img
+                  className="h-full w-full object-contain"
+                  src="/drill-previews/countdown.jpg"
+                  alt="카운트다운 연습"
+                />
               </div>
               <div className="mt-1">
                 <h3 className="font-extrabold">카운트다운 버튼 클릭 연습</h3>
@@ -131,14 +144,14 @@ const DrillScreen = () => {
                   정해진 시간에 버튼을 정확하고 빠르게 클릭하는 연습입니다.
                 </p>
               </div>
-              <div className="space-y-3 rounded-xl bg-gray-200 px-4 py-10">
+              <div className="min-h-40 space-y-3 rounded-xl bg-slate-50 px-4 py-5">
                 <p>1. 반응 속도 측정</p>
                 <p>2. 클릭 정확도 분석</p>
                 <p>3. 실제 예매와 유사한 환경 제공</p>
               </div>
               <Link
                 to="/drill/countdown"
-                className="mt-auto block rounded-xl bg-purple-600 py-3 text-lg font-bold text-white text-center"
+                className="mt-auto block rounded-xl bg-purple-700 py-3 text-lg font-bold text-white text-center transition-colors hover:bg-purple-800 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-purple-700"
               >
                 연습 시작하기
               </Link>
