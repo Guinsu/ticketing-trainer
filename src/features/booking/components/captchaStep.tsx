@@ -38,7 +38,7 @@ const CaptchaStep = ({ onPass, onChangeSchedule }: CaptchaStepProps) => {
   }
 
   return (
-    <div className="absolute inset-0 z-10 flex items-center justify-center bg-gray-900/40 px-4 backdrop-blur-sm">
+    <div className="fixed inset-0 z-20 flex items-center justify-center bg-gray-900/40 px-4 backdrop-blur-sm">
       <form
         onSubmit={handleSubmit}
         role="dialog"

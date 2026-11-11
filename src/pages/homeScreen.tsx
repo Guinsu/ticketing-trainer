@@ -24,7 +24,7 @@ const HomeScreen = () => {
         </span>
       </div>
 
-      <div className="mt-6 grid gap-8 lg:grid-cols-[2fr_3fr]">
+      <div className="mt-6 grid grid-cols-1 gap-8 lg:grid-cols-[2fr_3fr]">
         <ul className="space-y-2">
           {CONCERTS.map((concert) => {
             const isSelected = concert.id === selectedId
