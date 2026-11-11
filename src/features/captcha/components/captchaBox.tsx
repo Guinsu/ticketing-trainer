@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 
 interface CaptchaBoxProps {
   text: string
@@ -56,28 +56,24 @@ const backgroundColors = [
  * - 입력창과 정답 비교는 사용하는 화면에서 구현해주세요.
  */
 
-const CaptchaBox = function catchaBox({ text }: CaptchaBoxProps) {
-  //배경색 관리
-  const [backgroundColor, setBackgroundColor] = useState(backgroundColors[0])
+// 배경색과 점 위치를 랜덤으로 뽑기
+const createDecoration = () => ({
+  backgroundColor: backgroundColors[Math.floor(Math.random() * backgroundColors.length)],
+  dots: Array.from({ length: 50 }, (): Dot => ({
+    x: Math.random() * 100,
+    y: Math.random() * 100,
+    size: Math.random() * 3 + 2,
+    opacity: Math.random() * 0.3 + 0.2,
+  })),
+})
 
-  // 도트 위치 관리
-  const [dots, setDots] = useState<Dot[]>([])
-
-  useEffect(() => {
-    // 배경색 랜덤으로 뽑기
-    const index = Math.floor(Math.random() * backgroundColors.length)
-    setBackgroundColor(backgroundColors[index])
-
-    // 점에 위치 점보 랜덤 뽑기
-    const newDots = Array.from({ length: 50 }, () => ({
-      x: Math.random() * 100,
-      y: Math.random() * 100,
-      size: Math.random() * 3 + 2,
-      opacity: Math.random() * 0.3 + 0.2,
-    }))
-
-    setDots(newDots)
-  }, [text])
+const CaptchaBox = function CaptchaBox({ text }: CaptchaBoxProps) {
+  // text가 바뀌면 배경색과 점을 새로 뽑는다
+  const [decoration, setDecoration] = useState(() => ({ text, ...createDecoration() }))
+  if (decoration.text !== text) {
+    setDecoration({ text, ...createDecoration() })
+  }
+  const { backgroundColor, dots } = decoration
 
   return (
     <div
