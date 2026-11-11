@@ -29,6 +29,7 @@ const QueueScreen = () => {
   const concert = CONCERTS.find((item) => item.id === searchParams.get('concertId'))
   const { remaining, openAt } = useCountdown(OPEN_DELAY_MS)
   const [result, setResult] = useState<QueueResult | null>(null)
+  const [practiceStartedAt, setPracticeStartedAt] = useState<string | null>(null)
   const [phase, setPhase] = useState<Exclude<QueuePhase, 'loading'>>('checking')
   const queue = useQueueSimulation(phase === 'waiting' ? result : null)
   const saveQueueResult = useQueueStore((state) => state.setResult)
@@ -38,22 +39,29 @@ const QueueScreen = () => {
 
   // checking → waiting, loading → 예매창은 시간으로 전환하고 waiting은 순번이 0이 될 때까지 유지
   useEffect(() => {
-    if (!result || !concertId || currentPhase === 'waiting') return
+    if (!result || !concertId || currentPhase === 'waiting' || !practiceStartedAt) return
 
     const id = setTimeout(() => {
       if (currentPhase === 'checking') {
         setPhase('waiting')
       } else {
-        saveQueueResult(concertId, result)
+        saveQueueResult(concertId, result, {
+          startedAt: practiceStartedAt,
+          activatedAtMs: openAt,
+        })
         navigate(`/practice/window?concertId=${concertId}`, { replace: true })
       }
     }, PHASE_DURATION_MS[currentPhase])
 
     return () => clearTimeout(id)
-  }, [result, currentPhase, concertId, navigate, saveQueueResult])
+  }, [result, currentPhase, concertId, navigate, openAt, practiceStartedAt, saveQueueResult])
 
   // 버튼 활성화 후 늦게 누를수록 대기열이 길어진다
-  const handleEnter = () => setResult(createQueue(performance.now() - openAt))
+  const handleEnter = () => {
+    const enteredAtMs = performance.now()
+    setPracticeStartedAt(new Date(Date.now() - (enteredAtMs - openAt)).toISOString())
+    setResult(createQueue(enteredAtMs - openAt))
+  }
 
   if (!concert) return <Navigate to="/" replace />
 
