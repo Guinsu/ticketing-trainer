@@ -1,8 +1,6 @@
 import { Link, useLocation } from 'react-router-dom'
-import { supabase } from '@/lib/supabaseClient'
 import { useState } from 'react'
 import { setStoredNickname, getStoredNickname } from '@/common/utils/nicknameStrorage'
-import logError from '@/lib/logError'
 
 // TODO: 집중 연습 :type 슬러그는 인수 님과 확정 후 수정
 const NAV_ITEMS = [
@@ -38,6 +36,10 @@ const Header = () => {
       return
     }
 
+    const [{ supabase }, { default: logError }] = await Promise.all([
+      import('@/lib/supabaseClient'),
+      import('@/lib/logError'),
+    ])
     const { error } = await supabase.from('profiles').insert({ nickname: trimmedNickname })
 
     if (error) {
