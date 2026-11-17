@@ -30,7 +30,7 @@ const DrillScreen = () => {
   }
 
   return (
-    <section className="min-h-screen px-5 py-5">
+    <section className="min-h-screen px-4 py-5 sm:px-5">
       <div className="mx-auto max-w-7xl ">
         <div>
           <h1 className="text-3xl font-bold sm:text-5xl">

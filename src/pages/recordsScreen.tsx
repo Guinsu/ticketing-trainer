@@ -3,7 +3,7 @@ import FocusedPracticeReport from '@/features/record/components/FocusedPracticeR
 
 export default function RecordsScreen() {
   return (
-    <section className="min-h-screen bg-white px-5 py-5">
+    <section className="min-h-screen bg-white px-4 py-5 sm:px-5">
       <div className="mx-auto max-w-7xl">
         <div>
           <h1 className="text-3xl font-bold sm:text-5xl">

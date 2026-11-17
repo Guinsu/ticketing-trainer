@@ -56,7 +56,7 @@ export default function CountdownDrill() {
   }
 
   return (
-    <section className="min-h-screen px-5 py-5">
+    <section className="min-h-screen px-4 py-5 sm:px-5">
       <div className="mx-auto max-w-7xl">
         <p role="status" aria-live="polite" className="min-h-6 text-sm text-purple-800">
           {saveMessage}
@@ -77,26 +77,30 @@ export default function CountdownDrill() {
             <div className="flex flex-1 rounded-2xl flex-col bg-purple-100">
               <div className="mx-3 my-3 flex flex-1 flex-col">
                 <div className="flex flex-wrap items-center justify-between gap-3">
-                  <div className="flex items-center gap-2.5 text-2xl">
+                  <div className="flex items-center gap-2.5 text-xl sm:text-2xl">
                     <p className="rounded-2xl bg-purple-800 px-3.5 text-white">01</p>
                     <h2 className="font-extrabold">카운트다운 버튼 클릭 연습</h2>
                   </div>
-                  <span className="shrink-0 rounded-xl bg-purple-50 px-3 py-2 font-bold tabular-nums text-purple-800 text-3xl">
+                  <span className="shrink-0 rounded-xl bg-purple-50 px-3 py-2 font-bold tabular-nums text-purple-800 text-2xl sm:text-3xl">
                     {(time / 1000).toFixed(3)}
                     <span className="ml-1 text-sm font-medium">초</span>
                   </span>
                 </div>
 
-                <div className="flex min-h-96 flex-1 flex-col gap-4 border border-purple-200 bg-purple-50 rounded-xl mt-3 p-5">
-                  <img
-                    src="/posters/1.jpg"
-                    alt="공연 포스터"
-                    className="mx-auto w-60 rounded-lg object-cover"
-                  />
+                <div className="flex flex-1 flex-col gap-4 border border-purple-200 bg-purple-50 rounded-xl mt-3 p-4 sm:min-h-96 sm:p-5">
+                  {/* 모바일은 포스터를 줄여서 버튼이 한 화면에 보이게 */}
+                  <div className="mx-auto aspect-[1000/1300] w-40 overflow-hidden rounded-lg sm:w-60">
+                    <img
+                      src="/drill-previews/countdown.jpg"
+                      alt="공연 포스터"
+                      className="h-full w-full object-cover object-top"
+                    />
+                  </div>
                   <button
                     type="button"
                     disabled={gameState === 'countdown'}
-                    className="mx-auto rounded-xl bg-purple-700 py-4 text-lg font-bold text-white transition-colors hover:bg-purple-800 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-purple-700 w-60"
+                    // 반응 속도 측정이라 터치 지연·텍스트 선택 방지
+                    className="mx-auto w-full touch-manipulation select-none rounded-xl bg-purple-700 py-4 text-lg font-bold text-white transition-colors hover:bg-purple-800 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-purple-700 sm:w-60"
                     onClick={() => {
                       if (gameState === 'idle') {
                         if (laps.length >= 5) {
@@ -133,7 +137,7 @@ export default function CountdownDrill() {
             </div>
           </div>
 
-          <aside className="min-w-0 rounded-2xl border border-purple-100 bg-white p-6 shadow-sm lg:flex-1">
+          <aside className="min-w-0 rounded-2xl border border-purple-100 bg-white p-4 shadow-sm sm:p-6 lg:flex-1">
             <div className="flex items-center justify-between">
               <h2 className="text-xl font-bold">현재기록</h2>
               <p className="text-3xl font-extrabold">

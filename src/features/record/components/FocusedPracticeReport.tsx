@@ -132,13 +132,13 @@ export default function FocusedPracticeReport() {
           </div>
         </details>
       </div>
-      <div className="flex flex-col rounded-2xl border border-violet-100 bg-white/90 p-5 shadow-sm shadow-violet-100/40 sm:p-6">
+      <div className="flex flex-col rounded-2xl border border-violet-100 bg-white/90 p-4 shadow-sm shadow-violet-100/40 sm:p-6">
         <h3 className="text-xl font-extrabold text-slate-950">유형별 평균 소요 시간</h3>
         <p className="mt-2 text-sm leading-relaxed text-slate-500 lg:min-h-10">
           보안문자·좌석 선택·취소표 등 유형별 평균 시간을 확인하세요.
         </p>
 
-        <div className="mt-5 flex min-h-[clamp(180px,26vh,260px)] flex-1 items-center justify-center rounded-xl border border-dashed border-violet-200 bg-violet-50/60 p-5 text-center text-sm text-slate-500">
+        <div className="mt-5 flex min-h-[clamp(180px,26vh,260px)] flex-1 items-center justify-center rounded-xl border border-dashed border-violet-200 bg-violet-50/60 p-2 text-center sm:p-5 text-sm text-slate-500">
           {avgData.length ? (
             <ChartContainer
               config={{ average_seconds: { label: '평균 소요 시간(초)', color: '#8b5cf6' } }}
@@ -150,7 +150,15 @@ export default function FocusedPracticeReport() {
                 <CartesianGrid vertical={false} />
 
                 {/* 가로축 : 연습 종류 */}
-                <XAxis dataKey="practice_type" tickLine={false} axisLine={false} tickMargin={10} />
+                {/* 좁은 화면에서도 유형 이름 4개가 모두 보이게 */}
+                <XAxis
+                  dataKey="practice_type"
+                  tickLine={false}
+                  axisLine={false}
+                  tickMargin={10}
+                  interval={0}
+                  fontSize={11}
+                />
 
                 {/* 세로축: 소요 시간 */}
                 <YAxis
@@ -167,6 +175,7 @@ export default function FocusedPracticeReport() {
                   <LabelList
                     dataKey="average_seconds"
                     position="top"
+                    fontSize={11}
                     formatter={(value) => `${value}초`}
                   />
                 </Bar>
@@ -177,7 +186,7 @@ export default function FocusedPracticeReport() {
           )}
         </div>
       </div>
-      <div className="flex flex-col rounded-2xl border border-violet-100 bg-white/90 p-5 shadow-sm shadow-violet-100/40 sm:p-6">
+      <div className="flex flex-col rounded-2xl border border-violet-100 bg-white/90 p-4 shadow-sm shadow-violet-100/40 sm:p-6">
         <h3 className="text-xl font-extrabold text-slate-950">최근 20회 기록 추이</h3>
         <p className="mt-2 text-sm leading-relaxed text-slate-500 lg:min-h-10">
           선택한 연습 유형의 최근 20회 소요 시간 변화를 확인하세요.
@@ -187,7 +196,7 @@ export default function FocusedPracticeReport() {
           <select
             value={selectedType}
             onChange={(event) => setSelectedType(event.target.value)}
-            className="rounded-md border border-violet-200 bg-white px-3 py-2"
+            className="rounded-md border border-violet-200 bg-white px-3 py-2 text-base sm:text-sm"
           >
             {practiceTypes.map((type) => (
               <option key={type.value} value={type.value}>
@@ -197,7 +206,7 @@ export default function FocusedPracticeReport() {
           </select>
         </label>
 
-        <div className="mt-5 flex min-h-[clamp(180px,26vh,260px)] flex-1 items-center justify-center rounded-xl border border-dashed border-violet-200 bg-violet-50/60 p-5 text-center text-sm text-slate-500">
+        <div className="mt-5 flex min-h-[clamp(180px,26vh,260px)] flex-1 items-center justify-center rounded-xl border border-dashed border-violet-200 bg-violet-50/60 p-2 text-center sm:p-5 text-sm text-slate-500">
           {trendData.length ? (
             <ChartContainer
               config={{ seconds: { label: '소요 시간(초)', color: '#8b5cf6' } }}
@@ -242,7 +251,7 @@ export default function FocusedPracticeReport() {
           )}
         </div>
       </div>
-      <div className="flex flex-col rounded-2xl border border-violet-100 bg-white/90 p-5 shadow-sm shadow-violet-100/40 sm:p-6">
+      <div className="flex flex-col rounded-2xl border border-violet-100 bg-white/90 p-4 shadow-sm shadow-violet-100/40 sm:p-6">
         <h3 className="text-xl font-extrabold text-slate-950">전체 사용자와 비교</h3>
         <p className="mt-2 text-sm leading-relaxed text-slate-500 lg:min-h-10">
           유형별 평균 시간이 짧은 순으로 내 순위를 확인하세요. 같은 평균은 공동 순위입니다.
@@ -252,7 +261,7 @@ export default function FocusedPracticeReport() {
           <select
             value={rankingType}
             onChange={(event) => setRankingType(event.target.value)}
-            className="rounded-md border border-violet-200 bg-white px-3 py-2"
+            className="rounded-md border border-violet-200 bg-white px-3 py-2 text-base sm:text-sm"
           >
             {practiceTypes.map((type) => (
               <option key={type.value} value={type.value}>
@@ -261,7 +270,7 @@ export default function FocusedPracticeReport() {
             ))}
           </select>
         </label>
-        <div className="mt-5 flex min-h-[clamp(180px,26vh,260px)] flex-1 items-center justify-center rounded-xl border border-dashed border-violet-200 bg-violet-50/60 p-5 text-center text-sm text-slate-500">
+        <div className="mt-5 flex min-h-[clamp(180px,26vh,260px)] flex-1 items-center justify-center rounded-xl border border-dashed border-violet-200 bg-violet-50/60 p-2 text-center sm:p-5 text-sm text-slate-500">
           <div role="status" aria-live="polite">
             {rankingLoading ? (
               <p>순위를 불러오는 중입니다.</p>

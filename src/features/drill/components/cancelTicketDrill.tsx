@@ -41,6 +41,26 @@ export default function CancelTicketDrill() {
     setGameState('missed')
   }
 
+  // 선택 완료: 데스크톱 버튼과 모바일 좌석도 아래 버튼이 같이 사용
+  function completeSelection() {
+    if (gameState !== 'selected') return
+    if (performance.now() - startedAt >= 4000) {
+      failGame('이미 결제가 완료되었습니다. 새로고침 후 다시 도전하세요.')
+      return
+    }
+    const elapsed = previousTime + stopStopWatch()
+    setGameState('completed')
+
+    void saveRecord({
+      nickname: getStoredNickname(),
+      practice_type: 'cancel-ticket',
+      status: 'completed',
+      durationMS: elapsed,
+      clickCount,
+      errorCount: failCount,
+    })
+  }
+
   function startGame() {
     setStartedAt(performance.now())
     setFailureMessage('')
@@ -78,7 +98,7 @@ export default function CancelTicketDrill() {
   }, [gameState, startedAt])
 
   return (
-    <section className="min-h-screen px-5 py-5">
+    <section className="min-h-screen px-4 py-5 sm:px-5">
       <div className="mx-auto max-w-7xl">
         <p role="status" aria-live="polite" className="min-h-6 text-sm text-purple-800">
           {saveMessage}
@@ -95,13 +115,14 @@ export default function CancelTicketDrill() {
         </div>
 
         {/* 연습하는 좌석도는 연보라색, 미션과 결과는 흰색 카드로 구분 */}
+        {/* 모바일은 제한 시간 안에 조작할 수 있게 좌석도 → 선택한 좌석 → 미션 정보 순서로 배치 */}
         <div className="flex flex-col gap-4 mt-3 lg:flex-row">
           {/*미션정보*/}
-          <div className="flex min-w-0 flex-1 flex-col rounded-2xl border border-purple-100 bg-white p-4 shadow-sm xl:p-6">
-            <h2 className="mb-5 text-2xl font-extrabold">미션 정보</h2>
+          <div className="order-last flex min-w-0 flex-1 flex-col rounded-2xl border border-purple-100 bg-white p-4 shadow-sm lg:order-0 xl:p-6">
+            <h2 className="mb-4 text-xl font-extrabold sm:mb-5 sm:text-2xl">미션 정보</h2>
 
-            <div className="flex flex-col gap-4">
-              <div className="rounded-2xl bg-slate-50 p-5">
+            <div className="flex flex-col gap-3 sm:gap-4">
+              <div className="rounded-2xl bg-slate-50 p-4 sm:p-5">
                 <p className="font-semibold text-slate-600">목표좌석</p>
                 <p className=" border-purple-100 px-3 py-2 text-xl font-extrabold">
                   아무좌석이나 (취소표)
@@ -111,36 +132,50 @@ export default function CancelTicketDrill() {
                 </p>
               </div>
 
-              <div className="rounded-2xl bg-slate-50 p-5">
-                <p className="font-semibold text-slate-600">현재 시도 시간 (초)</p>
-                <p className="mt-3 text-3xl font-extrabold text-purple-600">
-                  {(time / 1000).toFixed(3)}
-                </p>
-              </div>
+              {/* 모바일은 기록 3개를 한 줄로 */}
+              <div className="grid grid-cols-3 gap-2 lg:grid-cols-1 lg:gap-4">
+                <div className="rounded-2xl bg-slate-50 p-3 sm:p-5">
+                  <p className="text-xs font-semibold text-slate-600 sm:text-base">
+                    현재 시도 시간 (초)
+                  </p>
+                  <p className="mt-2 text-xl font-extrabold tabular-nums text-purple-600 sm:mt-3 sm:text-3xl">
+                    {(time / 1000).toFixed(3)}
+                  </p>
+                </div>
 
-              <div className="rounded-2xl bg-slate-50 p-5">
-                <p className="font-semibold text-slate-600">실패 횟수</p>
-                <p className="mt-3 text-3xl font-extrabold text-slate-950">{failCount}회</p>
-              </div>
+                <div className="rounded-2xl bg-slate-50 p-3 sm:p-5">
+                  <p className="text-xs font-semibold text-slate-600 sm:text-base">실패 횟수</p>
+                  <p className="mt-2 text-xl font-extrabold text-slate-950 sm:mt-3 sm:text-3xl">
+                    {failCount}회
+                  </p>
+                </div>
 
-              <div className="rounded-2xl bg-slate-50 p-5">
-                <p className="font-semibold text-slate-600">클릭 횟수</p>
-                <p className="mt-3 text-3xl font-extrabold text-slate-950">{clickCount}회</p>
+                <div className="rounded-2xl bg-slate-50 p-3 sm:p-5">
+                  <p className="text-xs font-semibold text-slate-600 sm:text-base">클릭 횟수</p>
+                  <p className="mt-2 text-xl font-extrabold text-slate-950 sm:mt-3 sm:text-3xl">
+                    {clickCount}회
+                  </p>
+                </div>
               </div>
             </div>
           </div>
 
           {/* 좌석도 */}
-          <div className="flex min-w-0 flex-1 flex-col rounded-2xl bg-purple-100 p-4 xl:p-6 gap">
-            <div className="flex items-start gap-2.5 text-xl xl:text-2xl">
+          <div className="order-first flex min-w-0 flex-1 flex-col rounded-2xl bg-purple-100 p-3 sm:p-4 lg:order-0 xl:p-6">
+            <div className="flex items-center justify-between gap-2.5 text-xl xl:text-2xl">
               <h2 className="font-extrabold">좌석도</h2>
+              {/* 모바일은 미션 정보가 아래에 있어서 시간만 좌석도 옆에 표시 */}
+              <span className="rounded-xl bg-purple-50 px-3 py-1 font-bold tabular-nums text-purple-800 lg:hidden">
+                {(time / 1000).toFixed(3)}
+                <span className="ml-1 text-sm font-medium">초</span>
+              </span>
             </div>
 
-            <div className="mt-3 shrink-0 rounded-xl border border-purple-200 bg-purple-50 p-4">
+            <div className="mt-3 shrink-0 rounded-xl border border-purple-200 bg-purple-50 p-2 sm:p-4">
               {gameState !== 'idle' ? (
                 <svg
                   viewBox="0 0 320 350"
-                  className="block h-auto w-full"
+                  className="block h-auto w-full touch-manipulation select-none"
                   role="group"
                   aria-label="공연 좌석도"
                 >
@@ -162,6 +197,9 @@ export default function CancelTicketDrill() {
                         cy={75 + row * 28}
                         r="9"
                         fill={index === openSeatIndex ? '#22c55e' : '#475569'}
+                        // 투명 테두리로 터치 영역을 좌석 간격만큼 넓힘
+                        stroke="transparent"
+                        strokeWidth={8}
                         className={
                           gameState === 'open' && index === openSeatIndex
                             ? 'cursor-pointer hover:opacity-70'
@@ -208,9 +246,20 @@ export default function CancelTicketDrill() {
                 {failureMessage}
               </p>
             )}
-            <div className="flex flex-row justify-center py-6 gap-2">
+            {/* 모바일 전용 선택 완료. 데스크톱은 오른쪽 카드의 버튼 사용 */}
+            {gameState === 'selected' && (
               <button
-                className="flex-1  w-full rounded-xl bg-purple-700 py-4 text-lg font-bold text-white shadow-sm transition-colors hover:bg-purple-800 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-purple-600"
+                type="button"
+                className="mt-3 w-full touch-manipulation rounded-xl bg-green-600 py-4 text-lg font-bold text-white shadow-sm transition-colors hover:bg-green-700 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-green-600 lg:hidden"
+                onClick={completeSelection}
+              >
+                {row + 1}열 {column + 1}번 선택 완료
+              </button>
+            )}
+            <div className="flex flex-row justify-center py-4 gap-2 sm:py-6">
+              <button
+                type="button"
+                className="flex-1  w-full rounded-xl bg-purple-700 py-4 text-lg font-bold text-white shadow-sm transition-colors hover:bg-purple-800 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-purple-600 disabled:cursor-not-allowed disabled:opacity-40"
                 disabled={gameState !== 'missed'}
                 onClick={() => {
                   startGame()
@@ -219,7 +268,8 @@ export default function CancelTicketDrill() {
                 새로고침
               </button>
               <button
-                className="flex-1  w-full rounded-xl bg-purple-700 py-4 text-lg font-bold text-white shadow-sm transition-colors hover:bg-purple-800 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-purple-600"
+                type="button"
+                className="flex-1  w-full rounded-xl bg-purple-700 py-4 text-lg font-bold text-white shadow-sm transition-colors hover:bg-purple-800 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-purple-600 disabled:cursor-not-allowed disabled:opacity-40"
                 disabled={gameState !== 'idle' && gameState !== 'completed'}
                 onClick={() => {
                   setFailCount(0)
@@ -318,23 +368,7 @@ export default function CancelTicketDrill() {
                     type="button"
                     className="w-full rounded-xl bg-purple-700 py-4 text-lg font-bold text-white transition-colors hover:bg-purple-800 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-purple-700 disabled:opacity-40 disabled:cursor-not-allowed"
                     disabled={gameState !== 'selected'}
-                    onClick={() => {
-                      if (performance.now() - startedAt >= 4000) {
-                        failGame('이미 결제가 완료되었습니다. 새로고침 후 다시 도전하세요.')
-                        return
-                      }
-                      const elapsed = previousTime + stopStopWatch()
-                      setGameState('completed')
-
-                      void saveRecord({
-                        nickname: getStoredNickname(),
-                        practice_type: 'cancel-ticket',
-                        status: 'completed',
-                        durationMS: elapsed,
-                        clickCount,
-                        errorCount: failCount,
-                      })
-                    }}
+                    onClick={completeSelection}
                   >
                     선택 완료
                   </button>

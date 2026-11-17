@@ -99,13 +99,14 @@ const Header = () => {
               <span className="shrink-0 font-medium text-gray-600">님</span>
             </span>
           ) : (
-            <div className="relative">
+            // 모바일은 입력칸이 한 줄을 꽉 채우고, iOS 확대 방지를 위해 16px 글자 사용
+            <div className="relative flex w-full gap-2 sm:w-auto">
               <input
                 id="nickname"
                 name="nickname"
                 type="text"
                 placeholder="닉네임을 입력하세요"
-                className="h-10 min-w-0 flex-1 rounded-lg border border-gray-300 px-3 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 sm:w-40 sm:flex-none"
+                className="h-10 min-w-0 flex-1 rounded-lg border border-gray-300 px-3 text-base outline-none sm:text-sm focus:border-primary focus:ring-2 focus:ring-primary/20 sm:w-40 sm:flex-none"
                 onChange={(e) => {
                   setNickName(e.target.value)
                   setNickNameError('')
