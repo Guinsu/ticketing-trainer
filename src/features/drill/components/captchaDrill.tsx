@@ -82,7 +82,7 @@ export default function CaptchaDrill() {
   }
 
   return (
-    <section className="min-h-screen px-5 py-5">
+    <section className="min-h-screen px-4 py-5 sm:px-5">
       <div className="mx-auto max-w-7xl">
         <div>
           <h1 className="text-3xl font-bold sm:text-5xl">
@@ -106,7 +106,12 @@ export default function CaptchaDrill() {
           </p>
           <p className="mt-3 text-base text-purple-950/70">
             {laps.length === 5 && gameState === 'stop'
-              ? '오른쪽 기록을 확인해보세요. 연습시작을 누르면 새로운 5문제로 다시 시작해요.'
+              ? <>
+                  {/* 모바일에서는 기록 카드가 아래에 있음 */}
+                  <span className="lg:hidden">아래</span>
+                  <span className="hidden lg:inline">오른쪽</span> 기록을 확인해보세요.
+                  연습시작을 누르면 새로운 5문제로 다시 시작해요.
+                </>
               : '대소문자를 구분하지 않아요. 입력 후 Enter 또는 정답 입력 버튼을 눌러주세요.'}
           </p>
         </div>
@@ -114,13 +119,13 @@ export default function CaptchaDrill() {
         <div className="flex flex-col gap-4 mt-4 lg:flex-row">
           <div className="flex min-w-0 flex-col gap-3 lg:flex-[2]">
             <div className="flex flex-1 rounded-2xl flex-col bg-purple-100">
-              <div className="p-4 sm:p-6 flex flex-1 flex-col">
+              <div className="p-3 sm:p-6 flex flex-1 flex-col">
                 <div className="flex flex-wrap items-center justify-between gap-3">
-                  <div className="flex items-center gap-2.5 text-2xl">
+                  <div className="flex items-center gap-2.5 text-xl sm:text-2xl">
                     <p className="rounded-2xl bg-purple-800 px-3.5 text-white">01</p>
                     <h2 className="font-extrabold">보안문자 입력 연습</h2>
                   </div>
-                  <span className="shrink-0 rounded-xl bg-purple-50 px-3 py-2 font-bold tabular-nums text-purple-800 text-3xl">
+                  <span className="shrink-0 rounded-xl bg-purple-50 px-3 py-2 font-bold tabular-nums text-purple-800 text-2xl sm:text-3xl">
                     {(time / 1000).toFixed(3)}
                     <span className="ml-1 text-sm font-medium">초</span>
                   </span>
@@ -128,7 +133,7 @@ export default function CaptchaDrill() {
 
                 <div className="flex flex-1 flex-col gap-4 border border-purple-200 bg-purple-50 rounded-xl mt-4 p-4 sm:p-5">
                   <div
-                    className={`flex h-48 items-center justify-center overflow-hidden rounded-xl border border-dashed border-purple-300 bg-white/50 p-0 text-center text-purple-800 ${gameState === 'start' ? 'text-4xl sm:text-6xl' : 'px-4 text-xl font-bold sm:text-2xl'} `}
+                    className={`flex h-36 sm:h-48 items-center justify-center overflow-hidden rounded-xl border border-dashed border-purple-300 bg-white/50 p-0 text-center text-purple-800 ${gameState === 'start' ? 'text-4xl sm:text-6xl' : 'px-4 text-xl font-bold sm:text-2xl'} `}
                   >
                     {gameState === 'start' ? (
                       <CaptchaBox text={answer} />
@@ -142,6 +147,10 @@ export default function CaptchaDrill() {
                   <input
                     type="text"
                     autoComplete="off"
+                    // 모바일 키보드의 자동 대문자·자동 수정 끄기
+                    autoCapitalize="off"
+                    autoCorrect="off"
+                    enterKeyHint="done"
                     spellCheck={false}
                     maxLength={6}
                     placeholder="보안문자를 입력하세요."
@@ -187,7 +196,7 @@ export default function CaptchaDrill() {
             </div>
           </div>
 
-          <aside className="min-w-0 rounded-2xl border border-purple-100 bg-white p-6 shadow-sm lg:flex-1">
+          <aside className="min-w-0 rounded-2xl border border-purple-100 bg-white p-4 shadow-sm sm:p-6 lg:flex-1">
             <div className="flex items-center justify-between">
               <h2 className="text-xl font-bold">현재 기록</h2>
               <p className="text-3xl font-extrabold">

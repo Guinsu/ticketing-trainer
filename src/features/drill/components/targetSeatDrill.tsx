@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, type CSSProperties } from 'react'
 import ZoneMinimap from '@/features/seat/components/zoneMinimap'
 import { KSPO_DOME } from '@/data/kspoDome'
 import SeatMap from '@/features/seat/components/seatMap'
@@ -81,7 +81,7 @@ export default function TargetSeatDrill() {
   }
 
   return (
-    <section className="min-h-screen px-5 py-5">
+    <section className="min-h-screen px-4 py-5 sm:px-5">
       <div className="mx-auto max-w-7xl">
         <h1 className="text-3xl font-bold sm:text-5xl">
           지정 좌석 <span className="text-purple-800">선택 연습</span>
@@ -123,9 +123,9 @@ export default function TargetSeatDrill() {
 
         <div className="mt-4 grid items-start gap-4 lg:grid-cols-[minmax(0,1.65fr)_minmax(300px,1fr)]">
           {/* 공용 좌석도는 그대로 사용하고 집중연습 화면의 공간만 넓혀서 배치 */}
-          <div className="min-w-0 rounded-2xl bg-purple-100 p-4 sm:p-6">
+          <div className="min-w-0 rounded-2xl bg-purple-100 p-3 sm:p-6">
             <div className="flex flex-wrap items-center justify-between gap-3">
-              <h2 className="text-2xl font-extrabold">
+              <h2 className="text-xl font-extrabold sm:text-2xl">
                 {zone && gameState === 'start' ? zone.label : '좌석도'}
               </h2>
               {gameState === 'start' && (
@@ -149,13 +149,51 @@ export default function TargetSeatDrill() {
                     >
                       ← 구역 다시 선택
                     </button>
-                    <div className="max-h-[65vh] overflow-auto rounded-xl bg-white/60 p-2 sm:p-4">
-                      <SeatMap
-                        zone={zone}
-                        grade={zoneGrade}
-                        statusMap={statusMap}
-                        onSeatClick={handleSeatClick}
-                      />
+                    <p className="mb-2 text-xs text-slate-500 sm:hidden">
+                      좌석도를 좌우로 밀어서 목표 번호를 찾아주세요.
+                    </p>
+                    <div className="max-h-[55vh] touch-manipulation overflow-auto rounded-xl bg-white/60 p-2 sm:max-h-[65vh] sm:p-4">
+                      {/* 좁은 화면에서 좌석이 너무 작아지지 않게 최소 폭을 두고 가로 스크롤 */}
+                      <div
+                        className="min-w-(--seat-map-min) sm:min-w-0"
+                        style={
+                          {
+                            '--seat-map-min': `${(32 + zone.seatsPerRow * 28) * 0.8}px`,
+                          } as CSSProperties
+                        }
+                      >
+                        <SeatMap
+                          zone={zone}
+                          grade={zoneGrade}
+                          statusMap={statusMap}
+                          onSeatClick={handleSeatClick}
+                        />
+                      </div>
+                    </div>
+
+                    {/* 모바일 전용: 좌석도 바로 아래에서 선택 확인 후 완료 */}
+                    <div className="mt-3 rounded-xl bg-white p-3 shadow-sm lg:hidden">
+                      <div className="flex items-center justify-between gap-3 text-sm">
+                        <span className="font-bold text-purple-950">
+                          {selectedSeat
+                            ? `${selectedSeat.row}열 ${selectedSeat.number}번 선택`
+                            : '좌석을 선택해주세요'}
+                        </span>
+                        <span className="font-extrabold tabular-nums text-purple-700">
+                          {(time / 1000).toFixed(3)}초
+                        </span>
+                      </div>
+                      {feedback && (
+                        <p className="mt-2 text-sm font-medium text-rose-700">{feedback}</p>
+                      )}
+                      <button
+                        type="button"
+                        disabled={selectedSeat === null}
+                        onClick={finishGame}
+                        className="mt-3 w-full touch-manipulation rounded-xl bg-purple-700 py-3 text-lg font-bold text-white transition-colors hover:bg-purple-800 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-purple-700 disabled:cursor-not-allowed disabled:bg-slate-200 disabled:text-slate-500"
+                      >
+                        선택 완료
+                      </button>
                     </div>
                   </>
                 ) : (
@@ -189,7 +227,7 @@ export default function TargetSeatDrill() {
             </div>
           </div>
 
-          <div className="min-w-0 rounded-2xl border border-purple-100 bg-white p-5 shadow-sm sm:p-6">
+          <div className="min-w-0 rounded-2xl border border-purple-100 bg-white p-4 shadow-sm sm:p-6">
             <div className="flex flex-wrap items-center justify-between gap-3">
               <h2 className="text-xl font-extrabold">
                 {gameState === 'over' ? '이번 연습 결과' : '선택한 좌석'}
