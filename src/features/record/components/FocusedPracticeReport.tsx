@@ -221,6 +221,9 @@ export default function FocusedPracticeReport() {
                   tickLine={false}
                   axisLine={false}
                   tickMargin={10}
+                  // 라벨이 겹칠 때 1회부터 같은 간격으로 건너뛰기 (기본값은 간격이 들쭉날쭉)
+                  interval="equidistantPreserveStart"
+                  fontSize={12}
                 />
                 <YAxis
                   tickFormatter={(value) => `${value}초`}
