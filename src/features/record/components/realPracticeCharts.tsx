@@ -55,7 +55,7 @@ export const StageChart = ({ records }: { records: RealPracticeRecord[] }) => (
       />
       <YAxis tickFormatter={formatSeconds} tickLine={false} axisLine={false} width={45} />
       <ChartTooltip content={<ChartTooltipContent />} />
-      <Bar dataKey="seconds" fill="var(--color-seconds)" radius={4}>
+      <Bar dataKey="seconds" fill="var(--color-seconds)" radius={4} isAnimationActive={false}>
         <LabelList dataKey="seconds" position="top" formatter={formatSeconds} />
       </Bar>
     </BarChart>
@@ -79,7 +79,12 @@ export const TrendChart = ({ records }: { records: RealPracticeRecord[] }) => (
       <XAxis dataKey="round" tickLine={false} axisLine={false} tickMargin={10} />
       <YAxis tickFormatter={formatSeconds} tickLine={false} axisLine={false} width={45} />
       <ChartTooltip content={<ChartTooltipContent />} />
-      <Line dataKey="seconds" stroke="var(--color-seconds)" strokeWidth={2} />
+      <Line
+        dataKey="seconds"
+        stroke="var(--color-seconds)"
+        strokeWidth={2}
+        isAnimationActive={false}
+      />
     </LineChart>
   </ChartContainer>
 )
@@ -108,7 +113,7 @@ export const CompareChart = ({
       <XAxis type="number" tickFormatter={formatSeconds} tickLine={false} axisLine={false} />
       <YAxis type="category" dataKey="who" tickLine={false} axisLine={false} width={80} />
       <ChartTooltip content={<ChartTooltipContent />} />
-      <Bar dataKey="seconds" fill="var(--color-seconds)" radius={4}>
+      <Bar dataKey="seconds" fill="var(--color-seconds)" radius={4} isAnimationActive={false}>
         <LabelList dataKey="seconds" position="right" formatter={formatSeconds} />
       </Bar>
     </BarChart>

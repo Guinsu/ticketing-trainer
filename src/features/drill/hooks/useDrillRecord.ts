@@ -1,5 +1,8 @@
 import { useEffect, useRef, useState } from 'react'
-import savePracticeRecord from '@/lib/savePracticeRecord'
+import type savePracticeRecord from '@/lib/savePracticeRecord'
+
+// 저장 코드는 Supabase 클라이언트(약 55KB)를 포함해서, 첫 화면을 막지 않도록 저장할 때 불러옴
+const loadSavePracticeRecord = () => import('@/lib/savePracticeRecord').then((m) => m.default)
 
 // 연습 결과와 저장 결과는 따로 표시. 저장이 안 됐는데 성공한 것처럼 보이지 않게 관리
 export default function useDrillRecord() {
@@ -19,7 +22,7 @@ export default function useDrillRecord() {
     pending.current += 1
     if (mounted.current && !failed.current) setSaveMessage('기록 저장 중이에요.')
     try {
-      const result = await savePracticeRecord(input)
+      const result = await (await loadSavePracticeRecord())(input)
       if (result !== 'saved') {
         failed.current = true
         if (mounted.current)

@@ -1,8 +1,17 @@
-import { useEffect, useState } from 'react'
-import { ChartTooltip, ChartTooltipContent } from '@/components/ui/chart'
-import { ChartContainer } from '@/components/ui/chart'
-import { Bar, BarChart, CartesianGrid, LabelList, XAxis, YAxis, LineChart, Line } from 'recharts'
-import { resultData, type FocusedRecord, type PracticeRanking } from '@/features/record/utils/db'
+import { lazy, Suspense, useEffect, useState } from 'react'
+import ChartFallback from './chartFallback'
+import type { FocusedRecord, PracticeRanking } from '@/features/record/utils/db'
+
+// Supabase 클라이언트(약 55KB)가 첫 렌더링을 막지 않도록 조회 모듈은 렌더 후에 불러옴
+const loadResultData = () => import('@/features/record/utils/db').then((m) => m.resultData)
+
+// recharts는 용량이 커서 첫 화면 렌더링을 막지 않도록 차트만 따로 불러옴
+const AverageChart = lazy(() =>
+  import('./focusedPracticeCharts').then((m) => ({ default: m.AverageChart })),
+)
+const RecentTrendChart = lazy(() =>
+  import('./focusedPracticeCharts').then((m) => ({ default: m.RecentTrendChart })),
+)
 
 const practiceTypes = [
   { value: 'captcha', label: '보안문자' },
@@ -36,7 +45,7 @@ export default function FocusedPracticeReport() {
     let cancelled = false
     async function loadRankings() {
       try {
-        const data = await resultData.getPracticeRankings()
+        const data = await (await loadResultData()).getPracticeRankings()
         if (!cancelled) setRankings(data)
       } catch {
         if (!cancelled) setRankingError('순위를 불러오지 못했습니다. 잠시 후 다시 확인해 주세요.')
@@ -62,7 +71,7 @@ export default function FocusedPracticeReport() {
     let cancelled = false
     async function loadTrend() {
       try {
-        const data = await resultData.getPracticeRecords()
+        const data = await (await loadResultData()).getPracticeRecords()
         if (!cancelled) setRecords(data)
       } catch {
         if (!cancelled) setTrendError('연습 기록을 불러오지 못했습니다.')
@@ -80,7 +89,7 @@ export default function FocusedPracticeReport() {
     let cancelled = false
     async function loadRecords() {
       try {
-        const data = await resultData.getPriacticeAvg()
+        const data = await (await loadResultData()).getPriacticeAvg()
 
         if (!cancelled) {
           setAvgData(
@@ -140,47 +149,9 @@ export default function FocusedPracticeReport() {
 
         <div className="mt-5 flex min-h-[clamp(180px,26vh,260px)] flex-1 items-center justify-center rounded-xl border border-dashed border-violet-200 bg-violet-50/60 p-2 text-center sm:p-5 text-sm text-slate-500">
           {avgData.length ? (
-            <ChartContainer
-              config={{ average_seconds: { label: '평균 소요 시간(초)', color: '#8b5cf6' } }}
-              className="h-[260px] w-full"
-            >
-              {' '}
-              <BarChart data={avgData} margin={{ top: 24, right: 12 }}>
-                {/* 배경 가로선 */}
-                <CartesianGrid vertical={false} />
-
-                {/* 가로축 : 연습 종류 */}
-                {/* 좁은 화면에서도 유형 이름 4개가 모두 보이게 */}
-                <XAxis
-                  dataKey="practice_type"
-                  tickLine={false}
-                  axisLine={false}
-                  tickMargin={10}
-                  interval={0}
-                  fontSize={11}
-                />
-
-                {/* 세로축: 소요 시간 */}
-                <YAxis
-                  tickFormatter={(value) => `${value}초`}
-                  tickLine={false}
-                  axisLine={false}
-                  width={45}
-                />
-
-                <ChartTooltip content={<ChartTooltipContent />} />
-
-                <Bar dataKey="average_seconds" fill="var(--color-average_seconds)" radius={4}>
-                  {/* 막대 위에 실제 시간 표시 */}
-                  <LabelList
-                    dataKey="average_seconds"
-                    position="top"
-                    fontSize={11}
-                    formatter={(value) => `${value}초`}
-                  />
-                </Bar>
-              </BarChart>
-            </ChartContainer>
+            <Suspense fallback={<ChartFallback />}>
+              <AverageChart data={avgData} />
+            </Suspense>
           ) : (
             <p>{loadError || '집중 연습을 시작해 보세요!'}</p>
           )}
@@ -208,43 +179,9 @@ export default function FocusedPracticeReport() {
 
         <div className="mt-5 flex min-h-[clamp(180px,26vh,260px)] flex-1 items-center justify-center rounded-xl border border-dashed border-violet-200 bg-violet-50/60 p-2 text-center sm:p-5 text-sm text-slate-500">
           {trendData.length ? (
-            <ChartContainer
-              config={{ seconds: { label: '소요 시간(초)', color: '#8b5cf6' } }}
-              className="h-[260px] w-full"
-            >
-              {' '}
-              <LineChart data={trendData} margin={{ top: 24, right: 12 }}>
-                <CartesianGrid vertical={false} />
-                <XAxis
-                  dataKey="attempt"
-                  tickFormatter={(value) => `${value}회`}
-                  tickLine={false}
-                  axisLine={false}
-                  tickMargin={10}
-                  // 라벨이 겹칠 때 1회부터 같은 간격으로 건너뛰기 (기본값은 간격이 들쭉날쭉)
-                  interval="equidistantPreserveStart"
-                  fontSize={12}
-                />
-                <YAxis
-                  tickFormatter={(value) => `${value}초`}
-                  tickLine={false}
-                  axisLine={false}
-                  width={55}
-                  domain={[0, 'auto']}
-                />
-                <ChartTooltip
-                  content={<ChartTooltipContent labelFormatter={(value) => `${value}회차`} />}
-                />
-                <Line
-                  type="linear"
-                  dataKey="seconds"
-                  stroke="var(--color-seconds)"
-                  strokeWidth={2}
-                  dot={{ r: 4 }}
-                  activeDot={{ r: 6 }}
-                />
-              </LineChart>
-            </ChartContainer>
+            <Suspense fallback={<ChartFallback />}>
+              <RecentTrendChart data={trendData} />
+            </Suspense>
           ) : (
             <p>
               {trendLoading
