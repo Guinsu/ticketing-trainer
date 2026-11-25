@@ -90,8 +90,14 @@ export default function CountdownDrill() {
                 <div className="flex flex-1 flex-col gap-4 border border-purple-200 bg-purple-50 rounded-xl mt-3 p-4 sm:min-h-96 sm:p-5">
                   {/* 모바일은 포스터를 줄여서 버튼이 한 화면에 보이게 */}
                   <div className="mx-auto aspect-[1000/1300] w-40 overflow-hidden rounded-lg sm:w-60">
+                    {/* 첫 화면의 LCP 이미지라 우선 로딩 */}
                     <img
-                      src="/drill-previews/countdown.jpg"
+                      src="/drill-previews/countdown-480.webp"
+                      srcSet="/drill-previews/countdown-320.webp 320w, /drill-previews/countdown-480.webp 480w"
+                      sizes="(min-width: 640px) 240px, 160px"
+                      width={480}
+                      height={755}
+                      fetchPriority="high"
                       alt="공연 포스터"
                       className="h-full w-full object-cover object-top"
                     />

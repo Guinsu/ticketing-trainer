@@ -53,9 +53,13 @@ const DrillScreen = () => {
             {/* 보안문자 연습*/}
             <div className="flex flex-1 flex-col gap-3">
               <div className="mt-3 flex h-[clamp(140px,24vh,220px)] shrink-0 items-center justify-center overflow-hidden rounded-xl border border-purple-200 bg-purple-50">
+                {/* 모바일 첫 화면에 보이는 미리보기라 우선 로딩 */}
                 <img
                   className="h-full w-full object-contain object-[35%_center]"
-                  src="/drill-previews/captcha.jpg"
+                  src="/drill-previews/captcha.webp"
+                  width={385}
+                  height={145}
+                  fetchPriority="high"
                   alt="보안문자 입력 연습"
                 />
               </div>
@@ -91,7 +95,9 @@ const DrillScreen = () => {
               <div className="mt-3 flex h-[clamp(140px,24vh,220px)] shrink-0 items-center justify-center overflow-hidden rounded-xl border border-purple-200 bg-purple-50">
                 <img
                   className="h-full w-full object-contain"
-                  src="/drill-previews/seat.jpg"
+                  src="/drill-previews/seat.webp"
+                  width={630}
+                  height={523}
                   alt="좌석 선택 연습"
                 />
               </div>
@@ -134,7 +140,9 @@ const DrillScreen = () => {
               <div className="mt-3 flex h-[clamp(140px,24vh,220px)] shrink-0 items-center justify-center overflow-hidden rounded-xl border border-purple-200 bg-purple-50">
                 <img
                   className="h-full w-full object-contain"
-                  src="/drill-previews/countdown.jpg"
+                  src="/drill-previews/countdown-320.webp"
+                  width={320}
+                  height={503}
                   alt="카운트다운 연습"
                 />
               </div>
