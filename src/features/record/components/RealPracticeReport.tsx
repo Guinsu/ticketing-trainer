@@ -1,6 +1,20 @@
-import { useEffect, useState } from 'react'
-import getRealPracticeRecords, { type RealPracticeData } from '@/lib/getRealPracticeRecords'
-import { CompareChart, StageChart, TrendChart } from './realPracticeCharts'
+import { lazy, Suspense, useEffect, useState } from 'react'
+import type { RealPracticeData } from '@/lib/getRealPracticeRecords'
+import ChartFallback from './chartFallback'
+
+// Supabase 클라이언트(약 55KB)가 첫 렌더링을 막지 않도록 조회 모듈은 렌더 후에 불러옴
+const getRealPracticeRecords = () => import('@/lib/getRealPracticeRecords').then((m) => m.default())
+
+// recharts는 용량이 커서 첫 화면 렌더링을 막지 않도록 차트만 따로 불러옴
+const StageChart = lazy(() =>
+  import('./realPracticeCharts').then((m) => ({ default: m.StageChart })),
+)
+const TrendChart = lazy(() =>
+  import('./realPracticeCharts').then((m) => ({ default: m.TrendChart })),
+)
+const CompareChart = lazy(() =>
+  import('./realPracticeCharts').then((m) => ({ default: m.CompareChart })),
+)
 
 export default function RealPracticeReport() {
   const [data, setData] = useState<RealPracticeData | null>(null)
@@ -61,7 +75,11 @@ export default function RealPracticeReport() {
           </p>
 
           <div className="mt-5 flex min-h-[clamp(180px,26vh,260px)] flex-1 items-center justify-center rounded-xl border border-dashed border-violet-200 bg-violet-50/60 p-2 text-center sm:p-5 text-sm text-slate-500">
-            {records.length > 0 ? card.chart : <p>{emptyMessage}</p>}
+            {records.length > 0 ? (
+              <Suspense fallback={<ChartFallback />}>{card.chart}</Suspense>
+            ) : (
+              <p>{emptyMessage}</p>
+            )}
           </div>
         </div>
       ))}
